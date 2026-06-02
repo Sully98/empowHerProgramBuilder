@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Program Builder — EmpowHER Strength</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #1a1a1a;
+  --dark:     #141414;
+  --card:     #202020;
+  --border:   #2a2a2a;
+  --border2:  #363636;
+  --accent:   #7bb5b2;
+  --accent-h: #6aa3a0;
+  --gold:     #edd286;
+  --gold-h:   #e5c870;
+  --text:     #f8f2dd;
+  --muted:    #8a8070;
+  --red:      #d97070;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ─── LANDING ─── */
+#landing{min-height:100vh;display:flex;flex-direction:column;}
+
+.hero{
+  padding:100px 72px 80px;
+  background:linear-gradient(150deg,#111111 0%,#161616 50%,#141e1e 100%);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-180px;right:-180px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(123,181,178,.08) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-100px;left:-100px;
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(237,210,134,.04) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+.hero-eyebrow{
+  display:flex;align-items:center;gap:12px;margin-bottom:28px;
+}
+.hero-brand{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+}
+.hero-divider{width:40px;height:1px;background:var(--border2);}
+.hero-tagline{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+
+.hero-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,7vw,96px);
+  line-height:.95;
+  font-weight:600;
+  letter-spacing:-1px;
+  margin-bottom:10px;
+  color:var(--text);
+}
+.hero-h1 em{color:var(--accent);font-style:italic;}
+
+.hero-h1-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,7vw,96px);
+  line-height:.95;
+  font-weight:400;
+  font-style:italic;
+  letter-spacing:-1px;
+  color:var(--gold);
+  margin-bottom:36px;
+}
+
+.hero-p{font-size:16px;color:var(--muted);max-width:580px;line-height:1.8;margin-bottom:44px;font-weight:300;}
+.hero-p strong{color:var(--text);font-weight:500;}
+
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:13px 26px;border:none;cursor:pointer;transition:all .18s;display:inline-block;text-decoration:none;}
+.btn-primary{background:var(--accent);color:var(--dark);}
+.btn-primary:hover{background:var(--accent-h);transform:translateY(-1px);}
+.btn-gold{background:var(--gold);color:var(--dark);}
+.btn-gold:hover{background:var(--gold-h);transform:translateY(-1px);}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:8px 16px;font-size:10px;}
+
+/* MISSION STRIP */
+.mission-strip{
+  background:var(--dark);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:28px 72px;
+  display:flex;gap:48px;flex-wrap:wrap;align-items:center;
+}
+.ms-item{display:flex;align-items:center;gap:12px;}
+.ms-icon{font-size:18px;}
+.ms-text{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.ms-text strong{color:var(--accent);font-weight:500;}
+
+/* SECTIONS */
+.lsec{padding:72px;border-top:1px solid var(--border);}
+.lsec.alt{background:var(--dark);}
+.ltag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.lh2{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;line-height:1.05;margin-bottom:22px;letter-spacing:-.5px;}
+.lh2 em{font-style:italic;color:var(--gold);}
+.prose{font-size:15px;line-height:1.85;color:var(--muted);max-width:780px;font-weight:300;}
+.prose strong{color:var(--text);font-weight:500;}
+.prose p{margin-bottom:14px;}
+
+/* MISSION SECTION */
+.mission-cols{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px;}
+@media(max-width:720px){.mission-cols{grid-template-columns:1fr;}}
+.mission-col h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.mission-col h3 em{font-style:italic;color:var(--accent);}
+.mission-col p{font-size:14px;color:var(--muted);line-height:1.8;font-weight:300;}
+
+.mission-quote{
+  margin-top:40px;
+  padding:32px 40px;
+  background:var(--card);
+  border-left:3px solid var(--gold);
+  max-width:700px;
+}
+.mission-quote blockquote{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;
+  font-style:italic;
+  color:var(--text);
+  line-height:1.6;
+  margin-bottom:12px;
+}
+.mission-quote cite{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+
+/* HOW GRID */
+.how-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:28px;}
+.how-card{background:var(--card);border:1px solid var(--border);padding:24px;transition:border-color .15s;}
+.how-card:hover{border-color:var(--accent);}
+.how-n{font-family:'Cormorant Garamond',serif;font-size:44px;color:var(--border2);line-height:1;margin-bottom:12px;font-weight:400;}
+.how-t{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text);margin-bottom:6px;}
+.how-d{font-size:12px;color:var(--muted);line-height:1.65;}
+
+/* RESEARCH */
+.goal-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0;}
+.gtab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 18px;border:1px solid var(--border);cursor:pointer;color:var(--muted);background:transparent;transition:all .15s;display:flex;align-items:center;gap:7px;}
+.gtab:hover{border-color:var(--accent);color:var(--accent);}
+.gtab.active{border-color:var(--accent);background:var(--accent);color:var(--dark);font-weight:600;}
+.gtab .gdot{width:7px;height:7px;border-radius:50%;}
+
+.rcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
+.rcard{background:var(--card);border:1px solid var(--border);padding:26px;position:relative;transition:border-color .15s;}
+.rcard:hover{border-color:var(--border2);}
+.rcard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);}
+.rcard-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.rcard h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin-bottom:10px;letter-spacing:-.3px;}
+.rcard p{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:8px;font-weight:300;}
+.rcard p strong{color:var(--text);font-weight:500;}
+.rcite{font-family:'DM Mono',monospace;font-size:9px;color:var(--border2);border-top:1px solid var(--border);padding-top:8px;margin-top:8px;letter-spacing:.3px;line-height:1.55;}
+
+/* CTA */
+.cta-sec{padding:90px 72px;text-align:center;background:linear-gradient(150deg,#111 0%,#141e1e 100%);}
+.cta-h{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:600;margin-bottom:8px;letter-spacing:-.5px;}
+.cta-h em{font-style:italic;color:var(--accent);}
+.cta-sub{font-size:15px;color:var(--muted);margin-bottom:36px;font-weight:300;}
+
+/* FOOTER */
+.site-footer{background:var(--dark);border-top:1px solid var(--border);padding:32px 72px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.footer-brand{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--text);}
+.footer-brand span{color:var(--accent);}
+.footer-copy{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.footer-by{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.footer-by strong{color:var(--gold);}
+
+/* ─── APP SHELL ─── */
+#app{display:none;flex-direction:column;min-height:100vh;}
+#app.visible{display:flex;}
+
+.app-hdr{
+  background:var(--dark);border-bottom:1px solid var(--border);
+  padding:0 28px;display:flex;align-items:center;justify-content:space-between;
+  height:58px;position:sticky;top:0;z-index:200;
+}
+.app-logo-wrap{display:flex;align-items:center;gap:12px;}
+.app-logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--text);letter-spacing:-.3px;}
+.app-logo em{font-style:italic;color:var(--accent);}
+.app-logo-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.hdr-div{width:1px;height:24px;background:var(--border2);}
+.hdr-right{display:flex;gap:8px;align-items:center;}
+
+.app-body{display:grid;grid-template-columns:276px 1fr;flex:1;overflow:hidden;height:calc(100vh - 58px);}
+
+/* SIDEBAR */
+.sb{background:var(--dark);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+.sb-sec{padding:16px;border-bottom:1px solid var(--border);}
+.sb-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.split-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 5px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;transition:all .15s;text-align:center;line-height:1.4;}
+.split-btn:hover{border-color:var(--accent);color:var(--accent);}
+.split-btn.active{background:var(--accent);color:var(--dark);border-color:var(--accent);font-weight:600;}
+
+.goal-mini{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.gmini{border:1px solid var(--border);background:var(--card);color:var(--muted);padding:7px 4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;transition:all .15s;text-align:center;}
+.gmini:hover{border-color:var(--accent);color:var(--accent);}
+.gmini.active[data-g="hypertrophy"]{background:var(--accent);border-color:var(--accent);color:var(--dark);font-weight:600;}
+.gmini.active[data-g="strength"]{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:600;}
+.gmini.active[data-g="power"]{background:#c17d5a;border-color:#c17d5a;color:var(--text);font-weight:600;}
+.gmini.active[data-g="endurance"]{background:#7aab80;border-color:#7aab80;color:var(--dark);font-weight:600;}
+
+/* OVERLOAD */
+.ol-methods{display:flex;flex-direction:column;gap:4px;}
+.ol-method{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .15s;user-select:none;}
+.ol-method:hover{border-color:var(--border2);}
+.ol-method.selected{border-color:var(--accent);background:rgba(123,181,178,.06);}
+.ol-check{width:14px;height:14px;border:1px solid var(--border2);border-radius:2px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s;}
+.ol-method.selected .ol-check{background:var(--accent);border-color:var(--accent);color:var(--dark);}
+.ol-info{flex:1;}
+.ol-name{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);}
+.ol-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;}
+
+.block-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.block-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:1;}
+.block-input{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;width:52px;padding:5px 8px;text-align:center;outline:none;}
+.block-input:focus{border-color:var(--accent);}
+.deload-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+.deload-toggle{width:28px;height:16px;background:var(--border2);border-radius:8px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.deload-toggle.on{background:var(--accent);}
+.deload-toggle::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:white;top:2px;left:2px;transition:transform .2s;}
+.deload-toggle.on::after{transform:translateX(12px);}
+.deload-pct{background:var(--card);border:1px solid var(--border);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;width:48px;padding:4px 6px;text-align:center;outline:none;}
+
+/* MUSCLE ACCORDION */
+.mac{display:flex;flex-direction:column;gap:3px;}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .15s;user-select:none;}
+.mhdr:hover{border-color:var(--accent);}
+.mhdr.open{border-bottom-color:transparent;}
+.mname{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;}
+.mchev{font-size:8px;color:var(--muted);transition:transform .2s;}
+.mhdr.open .mchev{transform:rotate(180deg);color:var(--accent);}
+.exlist{display:none;flex-direction:column;margin-bottom:3px;}
+.exlist.open{display:flex;}
+.echip{display:flex;align-items:center;gap:7px;padding:6px 10px;background:rgba(0,0,0,.3);border:1px solid transparent;border-left:2px solid transparent;cursor:grab;transition:all .15s;font-size:11px;color:var(--muted);user-select:none;margin-bottom:2px;}
+.echip:hover{color:var(--text);border-color:var(--border);background:var(--card);}
+.echip:active{cursor:grabbing;opacity:.6;}
+.cdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.cdrag{color:var(--border);font-size:9px;margin-left:auto;flex-shrink:0;}
+
+/* ─── MAIN ─── */
+.main{overflow-y:auto;background:var(--bg);display:flex;flex-direction:column;}
+
+.prog-hdr{padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.prog-title{background:transparent;border:none;font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;color:var(--text);letter-spacing:-.5px;outline:none;width:360px;}
+.prog-title::placeholder{color:var(--border2);}
+.prog-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.meta-row{display:flex;gap:22px;}
+.mstat{text-align:center;}
+.mnum{font-family:'Cormorant Garamond',serif;font-size:34px;line-height:1;color:var(--accent);font-weight:600;}
+.mlbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+
+/* WEEK TABS */
+.week-tabs-wrap{padding:14px 28px 0;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.week-tab{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s;}
+.week-tab:hover{border-color:var(--border2);color:var(--text);}
+.week-tab.active{border-color:var(--accent);background:rgba(123,181,178,.08);color:var(--accent);}
+.week-tab.deload-tab{border-color:var(--gold);color:var(--gold);}
+.week-tab.deload-tab.active{background:rgba(237,210,134,.08);}
+
+/* VOL STRIP */
+.vol-strip{padding:10px 28px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+.vbadge{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border);padding:4px 10px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;}
+.vdot{width:5px;height:5px;border-radius:50%;}
+.vname{color:var(--muted);text-transform:uppercase;}
+.vcount{color:var(--text);}
+.vbadge.good .vcount{color:var(--accent);}
+.vbadge.low .vcount{color:#c17d5a;}
+.vol-empty{font-family:'DM Mono',monospace;font-size:9px;color:var(--border2);letter-spacing:2px;text-transform:uppercase;}
+
+/* SUGGESTION */
+.sug-panel{margin:0 28px 14px;background:rgba(123,181,178,.04);border:1px solid rgba(123,181,178,.2);padding:18px 22px;display:none;}
+.sug-panel.on{display:block;}
+.sug-ttl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.sug-body{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;}
+.sug-body strong{color:var(--text);font-weight:500;}
+.sug-tips{margin-top:10px;display:flex;flex-wrap:wrap;gap:7px;}
+.stip{background:rgba(123,181,178,.07);border:1px solid rgba(123,181,178,.15);padding:5px 11px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);}
+
+/* OVERLOAD SUMMARY */
+.ol-summary{margin:0 28px 14px;background:rgba(237,210,134,.03);border:1px solid rgba(237,210,134,.15);padding:14px 20px;display:none;}
+.ol-summary.on{display:block;}
+.ol-sum-ttl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.ol-week-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.ol-wk-badge{background:var(--card);border:1px solid var(--border);padding:5px 12px;font-family:'DM Mono',monospace;font-size:9px;}
+.ol-wk-badge .wk-num{color:var(--gold);font-weight:500;margin-right:6px;}
+.ol-wk-badge .wk-desc{color:var(--muted);}
+.ol-wk-badge.deload{border-color:rgba(237,210,134,.3);background:rgba(237,210,134,.04);}
+
+/* DAYS GRID */
+.days-grid{padding:0 28px 28px;display:grid;gap:10px;flex:1;}
+
+.day-card{background:var(--card);border:1px solid var(--border);display:flex;flex-direction:column;min-height:220px;transition:border-color .15s;}
+.day-card.drag-over{border-color:var(--accent);background:rgba(123,181,178,.04);}
+.day-card.rest{opacity:.38;}
+
+.day-hdr{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--dark);}
+.day-dow{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--border2);width:30px;line-height:1;}
+.day-lbl{background:transparent;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);outline:none;width:120px;}
+.day-lbl::placeholder{color:var(--muted);}
+.dtog-wrap{display:flex;align-items:center;gap:5px;}
+.dtog-lbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--muted);}
+.dtog{width:24px;height:13px;background:var(--border2);border-radius:7px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.dtog.on{background:var(--accent);}
+.dtog::after{content:'';position:absolute;width:9px;height:9px;border-radius:50%;background:white;top:2px;left:2px;transition:transform .2s;}
+.dtog.on::after{transform:translateX(11px);}
+
+.day-exs{padding:7px;display:flex;flex-direction:column;gap:4px;flex:1;min-height:70px;}
+.drop-hint{flex:1;display:flex;align-items:center;justify-content:center;border:1px dashed var(--border);color:var(--border2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;min-height:44px;pointer-events:none;transition:all .15s;}
+.day-card.drag-over .drop-hint{border-color:var(--accent);color:var(--accent);}
+.day-rest-ui{display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--border2);}
+.day-card.rest .day-rest-ui{display:flex;}
+.day-card.rest .day-exs{display:none;}
+.rest-ico{font-size:20px;}
+.rest-t{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;}
+
+/* EX BLOCK */
+.exb{background:var(--dark);border:1px solid var(--border);padding:7px 10px;display:flex;align-items:center;gap:7px;cursor:grab;transition:all .15s;user-select:none;}
+.exb:hover{border-color:var(--border2);}
+.exb:active{cursor:grabbing;opacity:.6;}
+.exb-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0;}
+.exb-info{flex:1;min-width:0;}
+.exb-name{font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exb-muscle{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:1px;}
+.exb-sets-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:1px;flex-shrink:0;}
+.exb-sets{background:var(--card);border:1px solid var(--border);color:var(--accent);font-family:'DM Mono',monospace;font-size:10px;width:68px;padding:3px 5px;text-align:center;outline:none;}
+.exb-sets:focus{border-color:var(--accent);}
+.exb-lbl{font-family:'DM Mono',monospace;font-size:7px;color:var(--border2);letter-spacing:1px;text-transform:uppercase;}
+.exb-rm{background:none;border:none;color:var(--border2);cursor:pointer;font-size:12px;padding:2px 3px;transition:color .15s;line-height:1;}
+.exb-rm:hover{color:var(--red);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:var(--dark);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:11px 18px;font-weight:600;transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:999;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ─── EMAIL SIGNUP SECTION ─── */
+.email-sec{
+  padding:72px;
+  background:linear-gradient(150deg,#141e1e 0%,#141414 60%,#1a1510 100%);
+  border-top:1px solid var(--border);
+  display:flex;gap:60px;align-items:center;flex-wrap:wrap;
+}
+.email-left{flex:1;min-width:280px;}
+.email-left .ltag{margin-bottom:12px;}
+.email-h{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-.5px;margin-bottom:14px;}
+.email-h em{font-style:italic;color:var(--gold);}
+.email-p{font-size:14px;color:var(--muted);line-height:1.75;font-weight:300;max-width:400px;}
+.email-right{flex:1;min-width:280px;max-width:440px;}
+.email-form{display:flex;flex-direction:column;gap:10px;}
+.email-field{
+  background:var(--card);border:1px solid var(--border2);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;
+  padding:14px 18px;outline:none;transition:border-color .15s;width:100%;
+}
+.email-field:focus{border-color:var(--accent);}
+.email-field::placeholder{color:var(--muted);}
+.email-submit{
+  background:var(--accent);color:var(--dark);
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:14px;border:none;cursor:pointer;transition:all .18s;width:100%;
+}
+.email-submit:hover{background:var(--accent-h);transform:translateY(-1px);}
+.email-note{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-align:center;margin-top:4px;}
+.email-perks{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+.email-perk{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
+.email-perk-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.email-success{display:none;background:rgba(123,181,178,.1);border:1px solid rgba(123,181,178,.25);padding:20px;text-align:center;}
+.email-success.show{display:block;}
+.email-success-h{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--accent);margin-bottom:6px;}
+.email-success-p{font-size:13px;color:var(--muted);font-weight:300;}
+
+/* ─── SOCIAL BAR ─── */
+.social-bar{
+  background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:20px 72px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;
+}
+.social-bar-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);}
+.social-links{display:flex;gap:16px;align-items:center;}
+.social-link{
+  display:flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;padding:7px 14px;
+  border:1px solid var(--border);transition:all .15s;
+}
+.social-link:hover{border-color:var(--accent);color:var(--accent);}
+.social-link.ig:hover{border-color:#e1306c;color:#e1306c;}
+.social-icon{font-size:14px;}
+
+/* ─── APP SOCIAL BANNER ─── */
+.app-social-banner{
+  background:linear-gradient(90deg,rgba(123,181,178,.06) 0%,rgba(237,210,134,.04) 100%);
+  border-bottom:1px solid var(--border);
+  padding:8px 28px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+.asb-text{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.asb-text strong{color:var(--gold);}
+.asb-links{display:flex;gap:12px;}
+.asb-link{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;transition:color .15s;
+}
+.asb-link:hover{color:var(--accent);}
+.asb-link.ig:hover{color:#e1306c;}
+
+/* ─── EMAIL POPUP ─── */
+.popup-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.popup-overlay.show{opacity:1;pointer-events:all;}
+.popup-box{
+  background:var(--dark);border:1px solid var(--border2);
+  padding:48px;max-width:480px;width:90%;position:relative;
+  transform:translateY(20px);transition:transform .3s;
+}
+.popup-overlay.show .popup-box{transform:translateY(0);}
+.popup-close{
+  position:absolute;top:16px;right:16px;background:none;border:none;
+  color:var(--muted);font-size:18px;cursor:pointer;transition:color .15s;line-height:1;
+}
+.popup-close:hover{color:var(--text);}
+.popup-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.popup-h{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;line-height:1.05;margin-bottom:10px;letter-spacing:-.3px;}
+.popup-h em{font-style:italic;color:var(--accent);}
+.popup-p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;font-weight:300;}
+.popup-form{display:flex;flex-direction:column;gap:8px;}
+.popup-no{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:center;cursor:pointer;margin-top:8px;transition:color .15s;}
+.popup-no:hover{color:var(--text);}
+
+/* ─── PRINT ─── */
+@media print {
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #landing,#app .app-hdr,.sb,.btn,.exb-rm,.dtog,.dtog-wrap,
+  .sug-panel,.vol-strip,.hdr-right,.week-tabs-wrap,.ol-summary{display:none!important;}
+  #app{display:flex!important;}
+  .app-body{display:block;height:auto;}
+  .main{overflow:visible;}
+  .prog-hdr{padding:12px;border-bottom:2px solid #333;}
+  .prog-title{color:#1a1a1a;font-size:32px;}
+  .prog-sub{color:#666;}
+  .print-prog-section{display:block!important;}
+  .days-grid{padding:8px;display:grid;}
+  .day-card{border:1px solid #ddd;background:white;break-inside:avoid;margin-bottom:10px;}
+  .day-hdr{background:#f5f5f5;border-bottom:1px solid #ddd;}
+  .day-dow{color:#ccc;}
+  .day-lbl,.exb-name{color:#1a1a1a;}
+  .exb-muscle{color:#888;}
+  .exb{background:#fafafa;border:1px solid #eee;}
+  .exb-sets{background:#f0f0f0;color:#333;border:1px solid #ddd;}
+  .drop-hint{display:none;}
+  body{background:white;color:#1a1a1a;}
+  .print-prog-section{margin-top:20px;padding:0 8px;}
+  .print-week-block{break-inside:avoid;margin-bottom:16px;border:1px solid #ddd;padding:14px;}
+  .print-week-title{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:8px;color:#1a1a1a;font-weight:600;}
+  .print-week-table{width:100%;border-collapse:collapse;font-size:11px;}
+  .print-week-table th{background:#f0f0f0;padding:5px 8px;text-align:left;border:1px solid #ddd;font-weight:600;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.5px;}
+  .print-week-table td{padding:5px 8px;border:1px solid #eee;color:#333;}
+  .print-week-table tr:nth-child(even) td{background:#fafafa;}
+  .deload-badge{background:#e8f4ff;color:#2563eb;padding:2px 6px;font-size:9px;font-weight:700;}
+  .print-footer{margin-top:24px;padding-top:12px;border-top:1px solid #ddd;font-family:monospace;font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:1px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LANDING
+═══════════════════════════════════════ -->
+<div id="landing">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <div class="hero-brand">EmpowHER Strength LLC</div>
+      <div class="hero-divider"></div>
+      <div class="hero-tagline">Program Builder</div>
+    </div>
+    <h1 class="hero-h1">Strength starts with</h1>
+    <div class="hero-h1-sub">a plan.</div>
+    <p class="hero-p">
+      A <strong>research-backed, drag-and-drop program builder</strong> built to make strength training accessible, approachable, and effective for everyone. Hand-selected exercises, evidence-based rep ranges, and a progressive overload system — all in one printable plan.
+    </p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="openApp()">Build My Program →</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('mission').scrollIntoView()">Our Mission</button>
+    </div>
+  </div>
+
+  <!-- MISSION STRIP -->
+  <div class="mission-strip">
+    <div class="ms-item"><span class="ms-icon">🧬</span><span class="ms-text"><strong>Research-Cited</strong> — ACSM sourced</span></div>
+    <div class="ms-item"><span class="ms-icon">🏋️</span><span class="ms-text"><strong>Equipment Flexible</strong> — BB, DB, cable, machine</span></div>
+    <div class="ms-item"><span class="ms-icon">🖨️</span><span class="ms-text"><strong>Print-Ready</strong> — take it to the gym</span></div>
+    <div class="ms-item"><span class="ms-icon">📈</span><span class="ms-text"><strong>Progressive Overload</strong> — auto-generated</span></div>
+    <div class="ms-item"><span class="ms-icon">✦</span><span class="ms-text"><strong>No experience needed</strong> — built for everyone</span></div>
+  </div>
+
+  <!-- MISSION -->
+  <div class="lsec" id="mission">
+    <div class="ltag">Our Mission</div>
+    <h2 class="lh2">Strength is for <em>everyone.</em></h2>
+    <div class="prose">
+      <p>EmpowHER Strength was built on a simple belief: that strength training should be <strong>accessible, understandable, and not intimidating</strong> — no matter your background, experience level, or where you train.</p>
+      <p>Too often, training knowledge is locked behind jargon, gym culture gatekeeping, or programs that assume you already know what you're doing. This tool exists to change that.</p>
+    </div>
+
+    <div class="mission-cols">
+      <div class="mission-col">
+        <h3>Stay <em>in the know.</em></h3>
+        <p>Every rep range, every set count, every volume target in this builder is sourced from peer-reviewed research. We cite our sources so you understand the why behind every recommendation — not just the what.</p>
+      </div>
+      <div class="mission-col">
+        <h3>Make it <em>simple.</em></h3>
+        <p>Drag an exercise onto a day. Pick your goal. Set your block length. The builder handles the rest — auto-generating your progressive overload plan, flagging your volume, and formatting a printable program ready for the gym.</p>
+      </div>
+      <div class="mission-col">
+        <h3>Get <em>stronger.</em></h3>
+        <p>The exercises in this library are hand-selected for their effectiveness, adaptability across equipment, and appropriateness across all experience levels. Every single one can be done with a barbell, dumbbell, cable, or machine equivalent.</p>
+      </div>
+      <div class="mission-col">
+        <h3>Built by <em>Melody.</em></h3>
+        <p>This isn't AI-generated programming or a template someone copied from a forum. The exercise selection, rep ranges, and methodology reflect real coaching philosophy — built to help real people get real results.</p>
+      </div>
+    </div>
+
+    <div class="mission-quote">
+      <blockquote>"You don't need to be an athlete to train like one. You just need a plan, the right information, and the confidence to start."</blockquote>
+      <cite>— Melody, EmpowHER Strength LLC</cite>
+    </div>
+  </div>
+
+  <!-- HOW TO USE -->
+  <div class="lsec alt" id="how">
+    <div class="ltag">How It Works</div>
+    <h2 class="lh2">Seven steps to your <em>program.</em></h2>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-n">01</div><div class="how-t">Pick Your Split</div><div class="how-d">Upper/Lower, Full Body, Bro Split, or Every Other Day. Your training week is laid out automatically.</div></div>
+      <div class="how-card"><div class="how-n">02</div><div class="how-t">Choose Your Goal</div><div class="how-d">Power, Strength, Hypertrophy, or Endurance — each one sets research-backed rep ranges and volume targets.</div></div>
+      <div class="how-card"><div class="how-n">03</div><div class="how-t">Set Block Length</div><div class="how-d">Type any number of weeks for your training block. A deload week is automatically added at the end.</div></div>
+      <div class="how-card"><div class="how-n">04</div><div class="how-t">Pick Overload Methods</div><div class="how-d">Choose from 7 evidence-based progressive overload types — or combine them. The builder generates your week-by-week plan.</div></div>
+      <div class="how-card"><div class="how-n">05</div><div class="how-t">Drag Your Exercises</div><div class="how-d">Open any muscle group and drag exercises onto your days. Every exercise includes equipment alternatives.</div></div>
+      <div class="how-card"><div class="how-n">06</div><div class="how-t">Check Your Volume</div><div class="how-d">The volume tracker shows weekly sets per muscle group and flags anything below the recommended minimum for your goal.</div></div>
+      <div class="how-card"><div class="how-n">07</div><div class="how-t">Print & Go</div><div class="how-d">Hit Print PDF — your full program plus a week-by-week progression table prints ready to use at the gym.</div></div>
+    </div>
+  </div>
+
+  <!-- RESEARCH -->
+  <div class="lsec" id="research">
+    <div class="ltag">The Research</div>
+    <h2 class="lh2">What the science <em>actually says.</em></h2>
+    <div class="prose">
+      <p>All set, rep, and volume prescriptions are drawn from the <strong>ACSM Position Stand on Progression Models in Resistance Training</strong> and updated by peer-reviewed meta-analyses. Select a goal below to see the research behind it.</p>
+    </div>
+    <div class="goal-tabs" id="landing-goal-tabs">
+      <button class="gtab active" data-g="hypertrophy" onclick="selectLandingGoal('hypertrophy')"><span class="gdot" style="background:var(--accent)"></span>Hypertrophy</button>
+      <button class="gtab" data-g="strength" onclick="selectLandingGoal('strength')"><span class="gdot" style="background:var(--gold)"></span>Strength</button>
+      <button class="gtab" data-g="power" onclick="selectLandingGoal('power')"><span class="gdot" style="background:#c17d5a"></span>Power</button>
+      <button class="gtab" data-g="endurance" onclick="selectLandingGoal('endurance')"><span class="gdot" style="background:#7aab80"></span>Endurance</button>
+    </div>
+    <div class="rcards" id="rcards"></div>
+  </div>
+
+  <!-- EMAIL SIGNUP -->
+  <div class="email-sec" id="signup">
+    <div class="email-left">
+      <div class="ltag">Stay in the loop</div>
+      <h2 class="email-h">Training tips,<br><em>straight to you.</em></h2>
+      <p class="email-p">Join the EmpowHER Strength community. Get weekly evidence-based training tips, new program templates, and be first to know when new features drop — no spam, ever.</p>
+      <div class="email-perks">
+        <div class="email-perk"><span class="email-perk-dot"></span>Weekly training tips from Melody</div>
+        <div class="email-perk"><span class="email-perk-dot"></span>Free program templates straight to your inbox</div>
+        <div class="email-perk"><span class="email-perk-dot"></span>Early access to new builder features</div>
+        <div class="email-perk"><span class="email-perk-dot"></span>Research breakdowns in plain English</div>
+      </div>
+    </div>
+    <div class="email-right">
+      <div class="email-form" id="landing-email-form">
+        <input class="email-field" id="landing-name" type="text" placeholder="Your first name">
+        <input class="email-field" id="landing-email" type="email" placeholder="Your email address">
+        <button class="email-submit" onclick="submitEmail('landing')">Get Weekly Tips →</button>
+        <div class="email-note">No spam. Unsubscribe any time. We respect your inbox.</div>
+      </div>
+      <div class="email-success" id="landing-email-success">
+        <div class="email-success-h">You're in! 🎉</div>
+        <div class="email-success-p">Welcome to EmpowHER Strength. Check your inbox for a welcome note from Melody.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOCIAL BAR -->
+  <div class="social-bar">
+    <span class="social-bar-lbl">Find us</span>
+    <div class="social-links">
+      <a class="social-link ig" href="https://instagram.com/empowher_strength" target="_blank">
+        <span class="social-icon">📸</span> @empowher_strength
+      </a>
+      <a class="social-link" href="https://empowherstrength.us" target="_blank">
+        <span class="social-icon">🌐</span> empowherstrength.us
+      </a>
+    </div>
+    <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">Follow along for daily training content</span>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-sec">
+    <div class="ltag" style="text-align:center;">Ready to build?</div>
+    <h2 class="cta-h">Your program.<br><em>Your strength.</em></h2>
+    <p class="cta-sub">Drag, drop, periodize, and print. Takes about 5 minutes.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" style="font-size:12px;padding:16px 40px;" onclick="openApp()">Build My Program →</button>
+      <a class="btn btn-ghost" style="font-size:12px;padding:16px 40px;" href="https://empowherstrength.us" target="_blank">Visit Our Website</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-brand">Empower<span>HER</span> Strength LLC</div>
+    <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+      <a class="footer-by" href="https://instagram.com/empowher_strength" target="_blank" style="text-decoration:none;color:var(--muted);">📸 @empowher_strength</a>
+      <a class="footer-by" href="https://empowherstrength.us" target="_blank" style="text-decoration:none;color:var(--muted);">🌐 empowherstrength.us</a>
+    </div>
+    <div class="footer-copy">© 2025 EmpowHER Strength LLC · Built by Melody · All rights reserved</div>
+  </footer>
+
+</div><!-- /landing -->
+
+<!-- EMAIL POPUP (fires after 45s) -->
+<div class="popup-overlay" id="email-popup">
+  <div class="popup-box">
+    <button class="popup-close" onclick="closePopup()">✕</button>
+    <div class="popup-tag">Free from EmpowHER Strength</div>
+    <h2 class="popup-h">Want a free<br><em>starter program?</em></h2>
+    <p class="popup-p">Drop your email and we'll send you a ready-to-use beginner program — built right here in the builder — plus weekly training tips from Melody, straight to your inbox.</p>
+    <div class="popup-form">
+      <input class="email-field" id="popup-name" type="text" placeholder="Your first name">
+      <input class="email-field" id="popup-email" type="email" placeholder="Your email address">
+      <button class="email-submit" onclick="submitEmail('popup')">Send Me the Program →</button>
+      <div class="popup-no" onclick="closePopup()">No thanks, I'll figure it out myself</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP
+═══════════════════════════════════════ -->
+<div id="app">
+  <header class="app-hdr">
+    <div class="app-logo-wrap">
+      <div class="app-logo">Empower<em>HER</em> Strength</div>
+      <div class="hdr-div"></div>
+      <div class="app-logo-tag">Program Builder</div>
+    </div>
+    <div class="hdr-right">
+      <button class="btn btn-ghost btn-sm" onclick="closeApp()">← Back</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearProg()">Clear</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadTemplate()">Load Template</button>
+      <button class="btn btn-ghost btn-sm" onclick="analyzeProg()">Analyze</button>
+      <button class="btn btn-primary btn-sm" onclick="doPrint()">⬇ Print PDF</button>
+    </div>
+  </header>
+  <div class="app-social-banner">
+    <div class="asb-text">Built by <strong>EmpowHER Strength LLC</strong> · Evidence-based training for everyone</div>
+    <div class="asb-links">
+      <a class="asb-link ig" href="https://instagram.com/empowher_strength" target="_blank">📸 @empowher_strength</a>
+      <a class="asb-link" href="https://empowherstrength.us" target="_blank">🌐 empowherstrength.us</a>
+      <a class="asb-link" href="#" onclick="document.getElementById('landing').style.display='flex';document.getElementById('app').classList.remove('visible');setTimeout(()=>document.getElementById('signup').scrollIntoView({behavior:'smooth'}),100);return false;">✉ Get Weekly Tips</a>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sb">
+
+      <div class="sb-sec">
+        <div class="sb-lbl">Training Split</div>
+        <div class="split-grid">
+          <button class="split-btn active" id="sp-upperlower" onclick="setSplit('upperlower')">Upper/<br>Lower</button>
+          <button class="split-btn" id="sp-fullbody" onclick="setSplit('fullbody')">Full<br>Body</button>
+          <button class="split-btn" id="sp-bro" onclick="setSplit('bro')">Bro<br>Split</button>
+          <button class="split-btn" id="sp-everyother" onclick="setSplit('everyother')">Every<br>Other</button>
+        </div>
+      </div>
+
+      <div class="sb-sec">
+        <div class="sb-lbl">Training Goal</div>
+        <div class="goal-mini">
+          <button class="gmini active" data-g="hypertrophy" onclick="setGoal('hypertrophy')">Hypertrophy</button>
+          <button class="gmini" data-g="strength" onclick="setGoal('strength')">Strength</button>
+          <button class="gmini" data-g="power" onclick="setGoal('power')">Power</button>
+          <button class="gmini" data-g="endurance" onclick="setGoal('endurance')">Endurance</button>
+        </div>
+      </div>
+
+      <div class="sb-sec">
+        <div class="sb-lbl">Block Length + Deload</div>
+        <div class="block-row">
+          <span class="block-lbl">Training Weeks</span>
+          <input class="block-input" id="block-weeks" type="number" min="1" max="52" value="4" onchange="onBlockChange()">
+        </div>
+        <div class="deload-row">
+          <div class="deload-toggle on" id="deload-tog" onclick="toggleDeload()"></div>
+          <span class="block-lbl">Deload Week</span>
+          <input class="deload-pct" id="deload-pct" type="number" min="30" max="80" value="50" onchange="renderWeekTabs()">
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">%</span>
+        </div>
+      </div>
+
+      <div class="sb-sec">
+        <div class="sb-lbl">Progressive Overload</div>
+        <div class="ol-methods" id="ol-methods"></div>
+        <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;" onclick="generateOverload()">Generate Plan</button>
+      </div>
+
+      <div class="sb-sec" style="flex:1;">
+        <div class="sb-lbl">Exercise Library — Drag to Day</div>
+        <div class="mac" id="mac"></div>
+      </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="main">
+      <div class="prog-hdr">
+        <div>
+          <input class="prog-title" id="prog-title" type="text" value="My Program" placeholder="My Program" maxlength="28">
+          <div class="prog-sub" id="prog-sub">Upper / Lower · Hypertrophy · 4 Week Block</div>
+        </div>
+        <div class="meta-row">
+          <div class="mstat"><div class="mnum" id="meta-ex">0</div><div class="mlbl">Exercises</div></div>
+          <div class="mstat"><div class="mnum" id="meta-sets">0</div><div class="mlbl">Total Sets</div></div>
+          <div class="mstat"><div class="mnum" id="meta-days">4</div><div class="mlbl">Days/Wk</div></div>
+          <div class="mstat"><div class="mnum" id="meta-weeks" style="color:var(--gold)">4</div><div class="mlbl">Wk Block</div></div>
+        </div>
+      </div>
+
+      <div class="week-tabs-wrap" id="week-tabs"></div>
+      <div class="vol-strip" id="vol-strip"><span class="vol-empty">Add exercises to see weekly volume</span></div>
+      <div class="ol-summary" id="ol-summary"><div class="ol-sum-ttl">✦ Progressive Overload Plan</div><div id="ol-sum-body"></div></div>
+      <div class="sug-panel" id="sug-panel"><div class="sug-ttl">✦ Program Analysis</div><div class="sug-body" id="sug-body"></div><div class="sug-tips" id="sug-tips"></div></div>
+      <div class="days-grid" id="days-grid"></div>
+      <div class="print-prog-section" id="print-prog" style="display:none;"></div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+
+const OVERLOAD_METHODS = [
+  {id:'load',    name:'Load',           desc:'Increase weight each week or cycle',            icon:'↑'},
+  {id:'reps',    name:'Reps',           desc:'Add 1–2 reps within your target range',          icon:'#'},
+  {id:'sets',    name:'Sets',           desc:'Add one working set per exercise or day',        icon:'+'},
+  {id:'tempo',   name:'Tempo / TUT',    desc:'Slow the eccentric to increase time under tension', icon:'⏱'},
+  {id:'quality', name:'Rep Quality',    desc:'Improve ROM, control, and reduce momentum',      icon:'✦'},
+  {id:'rest',    name:'Rest Reduction', desc:'Same work in less time — increase training density', icon:'↓'},
+  {id:'freq',    name:'Frequency',      desc:'Add a training day or session for a muscle group', icon:'📅'},
+];
+
+const GOALS = {
+  hypertrophy:{
+    label:'Hypertrophy', color:'var(--accent)', sets:'3–4', reps:'6–12', load:'67–85% 1RM', rest:'60–90 sec', wkMin:10, wkTarget:'10–20 sets/muscle',
+    defSets:()=>'3×8–12',
+    research:[
+      {h:'Volume Threshold', cite:'Schoenfeld BJ et al. (2017). Dose-response relationship between weekly resistance training volume and increases in muscle mass. J Strength Cond Res. 31(12):3508–3523.', t:'Research demonstrates a clear dose-response relationship between weekly training volume and muscle hypertrophy, with <strong>10+ sets per muscle group per week</strong> producing significantly greater gains than lower volumes. Optimal range is 10–20 sets per muscle per week.'},
+      {h:'Repetition Range', cite:'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t:'The ACSM recommends <strong>6–12 repetitions at 67–85% of 1RM</strong> as the primary zone for hypertrophy, balancing mechanical tension and metabolic stress — the two primary drivers of muscle growth.'},
+    ]
+  },
+  strength:{
+    label:'Strength', color:'var(--gold)', sets:'3–5', reps:'1–6', load:'≥85% 1RM', rest:'3–5 min', wkMin:6, wkTarget:'6–10 sets/muscle',
+    defSets:()=>'4×4–6',
+    research:[
+      {h:'Loading & Intensity', cite:'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t:'For maximal strength, ACSM recommends <strong>≥85% of 1RM for 1–6 repetitions</strong>. The primary adaptation is neural — improved motor unit recruitment, synchronization, and rate coding — rather than muscle hypertrophy.'},
+      {h:'Rest Intervals', cite:'de Salles BF et al. (2009). Rest interval between sets in strength training. Sports Med. 39(9):765–777.', t:'Strength training requires <strong>3–5 minutes of rest between sets</strong> to allow near-complete phosphocreatine resynthesis. Shorter rest compromises performance and neural adaptations.'},
+    ]
+  },
+  power:{
+    label:'Power', color:'#c17d5a', sets:'3–5', reps:'1–5', load:'75–90% 1RM', rest:'3–5 min', wkMin:4, wkTarget:'4–8 sets/muscle',
+    defSets:()=>'4×3–5',
+    research:[
+      {h:'Force-Velocity', cite:'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t:'Power development requires training the force-velocity curve — <strong>high loads (75–90% 1RM) performed with maximal intent speed</strong>. ACSM recommends 3–5 sets of 1–5 reps with full recovery to preserve movement velocity.'},
+      {h:'CNS Demand', cite:'Haff GG & Triplett NT (Eds). (2015). Essentials of Strength Training and Conditioning, 4th ed. NSCA.', t:'Power training places extreme demand on the CNS. <strong>Weekly volume should remain conservative (4–8 sets/muscle)</strong> with long rest intervals. Quality of each rep is paramount.'},
+    ]
+  },
+  endurance:{
+    label:'Endurance', color:'#7aab80', sets:'2–3', reps:'15–25', load:'30–60% 1RM', rest:'≤30 sec', wkMin:4, wkTarget:'4–8 sets/muscle',
+    defSets:()=>'3×15–20',
+    research:[
+      {h:'High-Rep Protocol', cite:'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t:'Muscular endurance is best developed with <strong>light loads (30–60% 1RM) for 15–25+ repetitions</strong> with rest intervals ≤30 seconds, maximizing oxidative enzyme activity and slow-twitch fatigue resistance.'},
+      {h:'Frequency', cite:'American College of Sports Medicine. (2013). ACSM\'s Guidelines for Exercise Testing and Prescription, 9th ed. Lippincott Williams & Wilkins.', t:'ACSM recommends a minimum of <strong>2 days per week</strong> for maintenance, 3 days for continued development. Total weekly set volume can be lower because high rep counts create significant metabolic stimulus per session.'},
+    ]
+  },
+};
+
+const MUSCLES = {
+  chest:{color:'#c47a7a',exercises:[{n:'Barbell Bench Press',a:'Dumbbells, Smith Machine'},{n:'Incline DB Press',a:'Barbell, Cable'},{n:'Cable Fly / Pec Deck',a:'DB Fly, Band Fly'},{n:'Dips (Chest Lean)',a:'Bench Dips, Machine Dip'},{n:'Push-Up Variations',a:'Weighted, Incline, Band-Resisted'}]},
+  back:{color:'#7bb5b2',exercises:[{n:'Barbell Row',a:'DB Row, T-Bar Row'},{n:'Pull-Up / Weighted',a:'Lat Pulldown, Assisted'},{n:'Lat Pulldown',a:'Pull-Up, Cable High Row'},{n:'Seated Cable Row',a:'DB Row, Machine Row'},{n:'Chest-Supported Row',a:'Machine Row, Cable Row'}]},
+  shoulders:{color:'#8fafd4',exercises:[{n:'Overhead Press (BB/DB)',a:'Seated, Standing, Cable'},{n:'Lateral Raise',a:'Cable, Band, Machine'},{n:'Face Pull / Rear Delt Fly',a:'Band Pull-Apart, DB Fly'},{n:'Cable Lateral Raise',a:'DB Lateral, Band'},{n:'Arnold Press',a:'Standard DB, Machine Press'}]},
+  biceps:{color:'#edd286',exercises:[{n:'Barbell Curl',a:'EZ-Bar, DB Curl'},{n:'Incline DB Curl',a:'Cable at Low Pulley'},{n:'Cable Curl',a:'DB Curl, Band Curl'},{n:'Hammer Curl',a:'Rope Curl, Cross-Body'},{n:'Preacher Curl',a:'Spider Curl, Scott Bench'}]},
+  triceps:{color:'#b09ac4',exercises:[{n:'Close-Grip Bench Press',a:'DB, Smith Machine'},{n:'Overhead Tricep Ext.',a:'EZ-Bar, Cable, DB'},{n:'Cable Pushdown',a:'Band Pushdown, DB Kickback'},{n:'Skull Crusher',a:'DB, Cable'},{n:'Dip Machine / Bench Dip',a:'Parallel Dip, Band-Assisted'}]},
+  quads:{color:'#c4b87a',exercises:[{n:'Back Squat',a:'Goblet, Front Squat, Smith'},{n:'Leg Press',a:'Squat, Hack Squat Machine'},{n:'Hack Squat',a:'Barbell Hack, Leg Press'},{n:'Bulgarian Split Squat',a:'Step-Up, Lunges'},{n:'Leg Extension',a:'Sissy Squat, Band Terminal Ext.'}]},
+  hamstrings:{color:'#c4956a',exercises:[{n:'Romanian Deadlift (RDL)',a:'DB RDL, Single-Leg RDL'},{n:'Leg Curl (Seated/Lying)',a:'Nordic Curl, Band Curl'},{n:'Nordic Hamstring Curl',a:'Stability Ball, Slider Curl'},{n:'Stiff-Leg Deadlift',a:'DB, Single-Leg Variation'},{n:'Good Morning',a:'Band, Cable Pull-Through'}]},
+  glutes:{color:'#c47a9a',exercises:[{n:'Hip Thrust (Barbell)',a:'DB Hip Thrust, Glute Bridge'},{n:'Cable Pull-Through',a:'Band Pull-Through, KB Swing'},{n:'Glute Kickback (Cable)',a:'Band Kickback, Machine'},{n:'Sumo Squat / Wide Stance',a:'DB Sumo, Plie Squat'},{n:'Step-Up (Weighted)',a:'Weighted Lunge, Box Step'}]},
+  core:{color:'#7aab80',exercises:[{n:'Ab Wheel Rollout',a:'Stability Ball, TRX Fallout'},{n:'Cable Crunch',a:'Decline Crunch, Band'},{n:'Hanging Leg Raise',a:"Captain's Chair, Lying Raise"},{n:'Pallof Press',a:'Band Pallof, Half-Kneeling'},{n:'Plank Variations',a:'Dead Bug, RKC Plank'}]},
+};
+
+const SPLITS = {
+  upperlower:{label:'Upper / Lower',days:['UPPER A','LOWER A','REST','UPPER B','LOWER B','REST','REST'],
+    tmpl:{0:[{m:'chest',i:0},{m:'back',i:0},{m:'shoulders',i:0},{m:'biceps',i:0},{m:'triceps',i:0}],1:[{m:'quads',i:0},{m:'hamstrings',i:0},{m:'glutes',i:0},{m:'core',i:0}],3:[{m:'chest',i:1},{m:'back',i:2},{m:'shoulders',i:1},{m:'biceps',i:1},{m:'triceps',i:1}],4:[{m:'quads',i:1},{m:'hamstrings',i:1},{m:'glutes',i:0},{m:'quads',i:4},{m:'core',i:3}]}},
+  fullbody:{label:'Full Body',days:['FULL BODY A','REST','FULL BODY B','REST','FULL BODY C','REST','REST'],
+    tmpl:{0:[{m:'chest',i:0},{m:'back',i:1},{m:'quads',i:0},{m:'shoulders',i:0},{m:'core',i:0}],2:[{m:'back',i:0},{m:'hamstrings',i:0},{m:'chest',i:1},{m:'biceps',i:0},{m:'triceps',i:0}],4:[{m:'quads',i:1},{m:'glutes',i:0},{m:'shoulders',i:1},{m:'biceps',i:2},{m:'core',i:3}]}},
+  bro:{label:'Bro Split',days:['CHEST','BACK','SHOULDERS','LEGS','ARMS','REST','REST'],
+    tmpl:{0:[{m:'chest',i:0},{m:'chest',i:1},{m:'chest',i:2},{m:'chest',i:3}],1:[{m:'back',i:0},{m:'back',i:1},{m:'back',i:2},{m:'back',i:3}],2:[{m:'shoulders',i:0},{m:'shoulders',i:1},{m:'shoulders',i:2},{m:'shoulders',i:4}],3:[{m:'quads',i:0},{m:'quads',i:1},{m:'hamstrings',i:0},{m:'glutes',i:0},{m:'core',i:2}],4:[{m:'biceps',i:0},{m:'biceps',i:1},{m:'triceps',i:0},{m:'triceps',i:1},{m:'triceps',i:2}]}},
+  everyother:{label:'Every Other Day',days:['WORKOUT A','REST','WORKOUT B','REST','WORKOUT C','REST','WORKOUT D'],
+    tmpl:{0:[{m:'chest',i:0},{m:'back',i:1},{m:'shoulders',i:0},{m:'triceps',i:0}],2:[{m:'quads',i:0},{m:'hamstrings',i:0},{m:'glutes',i:0},{m:'core',i:0}],4:[{m:'back',i:0},{m:'chest',i:1},{m:'shoulders',i:1},{m:'biceps',i:0}],6:[{m:'quads',i:3},{m:'hamstrings',i:1},{m:'glutes',i:0},{m:'core',i:3}]}},
+};
+
+const DOW=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let split='upperlower', goal='hypertrophy';
+let blockWeeks=4, deloadOn=true, deloadPct=50;
+let selectedMethods=new Set(['load','reps']);
+let overloadPlan=[];
+let days=[];
+let dragData=null;
+let activeWeekView=1;
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function init(){
+  buildResearchCards('hypertrophy');
+  buildOlMethods();
+  buildSidebar();
+  setSplit('upperlower',true);
+  renderWeekTabs();
+}
+
+// ═══════════════════════════════════════════════
+// LANDING RESEARCH
+// ═══════════════════════════════════════════════
+function buildResearchCards(g){
+  const d=GOALS[g], cont=document.getElementById('rcards');
+  cont.innerHTML='';
+  const sc=document.createElement('div'); sc.className='rcard';
+  sc.innerHTML=`<div class="rcard-tag">Training Parameters</div><h3 style="color:${d.color}">${d.label}</h3><p><strong>Sets:</strong> ${d.sets} per exercise</p><p><strong>Reps:</strong> ${d.reps} per set</p><p><strong>Load:</strong> ${d.load}</p><p><strong>Rest:</strong> ${d.rest}</p><p><strong>Weekly Volume:</strong> ${d.wkTarget}</p><div class="rcite">ACSM Position Stand — Ratamess et al. (2009)</div>`;
+  cont.appendChild(sc);
+  d.research.forEach(r=>{
+    const rc=document.createElement('div'); rc.className='rcard';
+    rc.innerHTML=`<div class="rcard-tag">Research Finding</div><h3>${r.h}</h3><p>${r.t}</p><div class="rcite">${r.cite}</div>`;
+    cont.appendChild(rc);
+  });
+}
+function selectLandingGoal(g){
+  document.querySelectorAll('#landing-goal-tabs .gtab').forEach(b=>b.classList.toggle('active',b.dataset.g===g));
+  buildResearchCards(g);
+}
+
+// ═══════════════════════════════════════════════
+// OVERLOAD METHODS
+// ═══════════════════════════════════════════════
+function buildOlMethods(){
+  const cont=document.getElementById('ol-methods'); cont.innerHTML='';
+  OVERLOAD_METHODS.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='ol-method'+(selectedMethods.has(m.id)?' selected':'');
+    el.innerHTML=`<div class="ol-check">${selectedMethods.has(m.id)?'✓':''}</div><div class="ol-info"><div class="ol-name">${m.icon} ${m.name}</div><div class="ol-desc">${m.desc}</div></div>`;
+    el.onclick=()=>{ selectedMethods.has(m.id)?selectedMethods.delete(m.id):selectedMethods.add(m.id); buildOlMethods(); };
+    cont.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// GENERATE OVERLOAD
+// ═══════════════════════════════════════════════
+function generateOverload(){
+  if(!selectedMethods.size){ showToast('Select at least one method'); return; }
+  const methods=[...selectedMethods];
+  const totalWks=blockWeeks+(deloadOn?1:0);
+  overloadPlan=[];
+  for(let w=1;w<=totalWks;w++){
+    const isDeload=deloadOn&&w===totalWks;
+    overloadPlan.push(isDeload
+      ?{week:w,isDeload:true,label:'Deload',instructions:buildDeloadInstr()}
+      :{week:w,isDeload:false,label:`Week ${w}`,instructions:buildWeekInstr(w,methods)});
+  }
+  renderOverloadSummary(); renderWeekTabs(); buildPrintProgression();
+  showToast('Overload plan generated');
+}
+
+function buildWeekInstr(w,methods){
+  const instr=[];
+  if(methods.includes('load')) instr.push({method:'Load',detail:w===1?'Establish your working weight for all exercises':`Increase weight 2.5–5% from Week ${w-1}`});
+  if(methods.includes('reps')) instr.push({method:'Reps',detail:w===1?'Work at the bottom of your rep range':w%3===0?'Top of rep range — ready to add weight next week':'Add 1–2 reps from last week'});
+  if(methods.includes('sets')) instr.push({method:'Sets',detail:w===1?'Start with prescribed sets':w>=3?'Add 1 set to each primary exercise':'Maintain sets from Week 1'});
+  if(methods.includes('tempo')){const t=['2-0-1-0','3-0-1-0','3-1-1-0','4-1-1-0']; instr.push({method:'Tempo',detail:`Use ${t[Math.min(w-1,t.length-1)]} (eccentric-pause-concentric-pause) this week`});}
+  if(methods.includes('quality')){const c=['Focus on full range of motion across all reps','Eliminate momentum — control every rep','Pause at peak contraction for 1 second','Perfect form before adding any load']; instr.push({method:'Rep Quality',detail:c[Math.min(w-1,c.length-1)]});}
+  if(methods.includes('rest')){const r=['Use full prescribed rest intervals','Reduce rest by 10 seconds from last week','Reduce rest by another 10 seconds','Minimum rest — push training density']; instr.push({method:'Rest',detail:r[Math.min(w-1,r.length-1)]});}
+  if(methods.includes('freq')) instr.push({method:'Frequency',detail:w<=2?'Standard session frequency':'Consider an extra session for any lagging muscle groups'});
+  return instr;
+}
+
+function buildDeloadInstr(){
+  return [
+    {method:'Volume',detail:`Reduce total sets by ${deloadPct}% — keep the same movements`},
+    {method:'Load',detail:'Drop to approximately 60% of your working weights'},
+    {method:'Intensity',detail:'No sets to failure — stop 3–4 reps before failure'},
+    {method:'Purpose',detail:'Active recovery — allow your CNS, joints, and connective tissue to recover before the next block'},
+  ];
+}
+
+function renderOverloadSummary(){
+  const panel=document.getElementById('ol-summary'), body=document.getElementById('ol-sum-body');
+  if(!overloadPlan.length){ panel.classList.remove('on'); return; }
+  panel.classList.add('on');
+  const rows=document.createElement('div');
+  rows.innerHTML='<div class="ol-week-row">'+overloadPlan.map(wp=>{
+    const focus=wp.isDeload?`Volume ↓${deloadPct}%`:wp.instructions.map(i=>i.method).join(' + ');
+    return `<div class="ol-wk-badge ${wp.isDeload?'deload':''}"><span class="wk-num">${wp.label}</span><span class="wk-desc">${focus}</span></div>`;
+  }).join('')+'</div>';
+  const activeWp=overloadPlan[activeWeekView-1];
+  if(activeWp){
+    const det=document.createElement('div');
+    det.style.cssText='margin-top:12px;display:flex;flex-direction:column;gap:5px;';
+    det.innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">${activeWp.label} — Instructions</div>`+
+      activeWp.instructions.map(i=>`<div style="display:flex;gap:10px;align-items:flex-start;font-size:12px;"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);width:80px;flex-shrink:0;text-transform:uppercase;letter-spacing:1px;padding-top:2px;">${i.method}</span><span style="color:var(--text);font-weight:300;">${i.detail}</span></div>`).join('');
+    rows.appendChild(det);
+  }
+  body.innerHTML=''; body.appendChild(rows);
+}
+
+// ═══════════════════════════════════════════════
+// WEEK TABS
+// ═══════════════════════════════════════════════
+function renderWeekTabs(){
+  const cont=document.getElementById('week-tabs');
+  const totalWks=blockWeeks+(deloadOn?1:0);
+  document.getElementById('meta-weeks').textContent=totalWks;
+  cont.innerHTML='<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-right:4px;">View Week:</span>';
+  for(let w=1;w<=totalWks;w++){
+    const isDeload=deloadOn&&w===totalWks;
+    const tab=document.createElement('button');
+    tab.className='week-tab'+(w===activeWeekView?' active':'')+(isDeload?' deload-tab':'');
+    tab.textContent=isDeload?'Deload':`Wk ${w}`;
+    tab.onclick=(()=>{ const ww=w; return ()=>{ activeWeekView=ww; renderWeekTabs(); renderOverloadSummary(); updateSubLabel(); }; })();
+    cont.appendChild(tab);
+  }
+  updateSubLabel();
+}
+
+function updateSubLabel(){
+  const totalWks=blockWeeks+(deloadOn?1:0);
+  const isDeload=deloadOn&&activeWeekView===totalWks;
+  const g=GOALS[goal], s=SPLITS[split];
+  document.getElementById('prog-sub').textContent=
+    `${s.label} · ${g.label} · ${blockWeeks} Week Block${deloadOn?' + Deload':''} · Viewing: ${isDeload?'Deload Week':`Week ${activeWeekView}`}`;
+}
+
+function onBlockChange(){
+  blockWeeks=Math.max(1,parseInt(document.getElementById('block-weeks').value)||4);
+  if(activeWeekView>blockWeeks+(deloadOn?1:0)) activeWeekView=1;
+  overloadPlan=[];
+  document.getElementById('ol-summary').classList.remove('on');
+  renderWeekTabs();
+}
+
+function toggleDeload(){
+  deloadOn=!deloadOn;
+  document.getElementById('deload-tog').classList.toggle('on',deloadOn);
+  overloadPlan=[];
+  document.getElementById('ol-summary').classList.remove('on');
+  renderWeekTabs();
+}
+
+// ═══════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════
+function buildSidebar(){
+  const acc=document.getElementById('mac'); acc.innerHTML='';
+  Object.entries(MUSCLES).forEach(([key,muscle])=>{
+    const hdr=document.createElement('div'); hdr.className='mhdr';
+    hdr.innerHTML=`<span class="mname" style="color:${muscle.color}">${key.charAt(0).toUpperCase()+key.slice(1)}</span><span class="mchev">▼</span>`;
+    const list=document.createElement('div'); list.className='exlist';
+    hdr.onclick=()=>{ hdr.classList.toggle('open'); list.classList.toggle('open'); };
+    muscle.exercises.forEach((ex,i)=>{
+      const chip=document.createElement('div'); chip.className='echip'; chip.draggable=true;
+      chip.style.borderLeftColor=muscle.color;
+      chip.title=`Equipment alternatives: ${ex.a}`;
+      chip.innerHTML=`<span class="cdot" style="background:${muscle.color}"></span><span>${ex.n}</span><span class="cdrag">⠿</span>`;
+      chip.addEventListener('dragstart',e=>{ dragData={src:'sb',muscle:key,ei:i,color:muscle.color}; e.dataTransfer.effectAllowed='copy'; });
+      list.appendChild(chip);
+    });
+    acc.appendChild(hdr); acc.appendChild(list);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SPLIT + GOAL
+// ═══════════════════════════════════════════════
+function setSplit(s,silent){
+  split=s;
+  document.querySelectorAll('.split-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sp-'+s).classList.add('active');
+  days=SPLITS[s].days.map(label=>({label,isRest:label==='REST',exercises:[]}));
+  updateSubLabel(); renderDays();
+  if(!silent) showToast(SPLITS[s].label);
+}
+
+function setGoal(g){
+  goal=g;
+  document.querySelectorAll('.gmini').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.gmini[data-g="${g}"]`).classList.add('active');
+  updateSubLabel(); renderDays();
+  showToast(GOALS[g].label);
+}
+
+// ═══════════════════════════════════════════════
+// TEMPLATE + CLEAR
+// ═══════════════════════════════════════════════
+function loadTemplate(){
+  const sp=SPLITS[split], g=GOALS[goal];
+  days=sp.days.map((label,i)=>({label,isRest:label==='REST',exercises:(sp.tmpl[i]||[]).map(e=>({
+    muscle:e.m,name:MUSCLES[e.m].exercises[e.i].n,adapt:MUSCLES[e.m].exercises[e.i].a,sets:g.defSets(),color:MUSCLES[e.m].color
+  }))}));
+  renderDays(); showToast('Template loaded');
+}
+
+function clearProg(){
+  days.forEach(d=>d.exercises=[]);
+  document.getElementById('sug-panel').classList.remove('on');
+  renderDays(); showToast('Cleared');
+}
+
+// ═══════════════════════════════════════════════
+// RENDER DAYS
+// ═══════════════════════════════════════════════
+function renderDays(){
+  const grid=document.getElementById('days-grid');
+  grid.style.gridTemplateColumns=`repeat(${Math.min(days.length,7)},1fr)`;
+  grid.innerHTML='';
+  const totalWks=blockWeeks+(deloadOn?1:0);
+  const isDeloadView=deloadOn&&activeWeekView===totalWks;
+
+  days.forEach((day,di)=>{
+    const card=document.createElement('div');
+    card.className='day-card'+(day.isRest?' rest':'');
+    card.addEventListener('dragover',e=>{ if(!day.isRest){e.preventDefault();card.classList.add('drag-over');} });
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+    card.addEventListener('drop',e=>{ e.preventDefault(); card.classList.remove('drag-over'); handleDrop(di); });
+    card.innerHTML=`
+      <div class="day-hdr">
+        <span class="day-dow">${DOW[di]}</span>
+        <input class="day-lbl" value="${day.label}" placeholder="Name this day" onchange="days[${di}].label=this.value">
+        <div class="dtog-wrap">
+          <span class="dtog-lbl">${day.isRest?'Off':'On'}</span>
+          <div class="dtog ${!day.isRest?'on':''}" onclick="toggleDay(${di})"></div>
+        </div>
+      </div>
+      <div class="day-exs" id="dex-${di}"></div>
+      <div class="day-rest-ui"><div class="rest-ico">💤</div><div class="rest-t">Rest Day</div></div>
+    `;
+    grid.appendChild(card);
+    const ec=document.getElementById(`dex-${di}`);
+    if(!day.isRest){
+      if(!day.exercises.length){ ec.innerHTML='<div class="drop-hint">Drop exercises here</div>'; }
+      else { day.exercises.forEach((ex,ei)=>{ const ds=isDeloadView?applyDeload(ex.sets):getWkSets(ex.sets,activeWeekView); ec.appendChild(makeExBlock(ex,di,ei,ds,isDeloadView)); }); }
+    }
+  });
+  updateStats(); updateVol();
+}
+
+function getWkSets(base,w){
+  if(!overloadPlan.length||!selectedMethods.has('sets')) return base;
+  const wp=overloadPlan[w-1]; if(!wp||wp.isDeload) return base;
+  const m=base.match(/^(\d+)×(.+)/); if(!m) return base;
+  let s=parseInt(m[1]); if(w>=3) s=Math.min(s+1,6);
+  return `${s}×${m[2]}`;
+}
+
+function applyDeload(base){
+  const m=base.match(/^(\d+)×(.+)/); if(!m) return base+' ↓';
+  const s=Math.max(1,Math.round(parseInt(m[1])*(deloadPct/100)));
+  return `${s}×${m[2]} ↓`;
+}
+
+function makeExBlock(ex,di,ei,displaySets,isDeload){
+  const b=document.createElement('div'); b.className='exb'; b.draggable=true;
+  b.title=ex.adapt?`Equipment alternatives: ${ex.adapt}`:'';
+  if(isDeload) b.style.borderLeftColor='var(--gold)';
+  b.innerHTML=`
+    <div class="exb-dot" style="background:${ex.color}"></div>
+    <div class="exb-info"><div class="exb-name">${ex.name}</div><div class="exb-muscle">${ex.muscle}</div></div>
+    <div class="exb-sets-wrap">
+      <input class="exb-sets" value="${displaySets}" ${isDeload?'readonly style="color:var(--gold);"':''}
+        onchange="days[${di}].exercises[${ei}].sets=this.value;updateStats()">
+      <div class="exb-lbl">Sets × Reps${isDeload?' (Deload)':''}</div>
+    </div>
+    <button class="exb-rm" onclick="removeEx(${di},${ei})">✕</button>
+  `;
+  b.addEventListener('dragstart',e=>{ dragData={src:'block',di,ei}; e.dataTransfer.effectAllowed='move'; });
+  return b;
+}
+
+function handleDrop(tdi){
+  if(!dragData) return;
+  if(dragData.src==='sb'){
+    const md=MUSCLES[dragData.muscle], ex=md.exercises[dragData.ei], g=GOALS[goal];
+    days[tdi].exercises.push({muscle:dragData.muscle,name:ex.n,adapt:ex.a,sets:g.defSets(),color:dragData.color});
+  } else {
+    const {di,ei}=dragData; if(di===tdi) return;
+    days[tdi].exercises.push(days[di].exercises.splice(ei,1)[0]);
+  }
+  dragData=null; renderDays();
+}
+
+function removeEx(di,ei){ days[di].exercises.splice(ei,1); renderDays(); }
+function toggleDay(di){ days[di].isRest=!days[di].isRest; renderDays(); }
+
+// ═══════════════════════════════════════════════
+// STATS + VOLUME
+// ═══════════════════════════════════════════════
+function updateStats(){
+  let ex=0,sets=0,active=0;
+  days.forEach(d=>{ if(!d.isRest){ active++; ex+=d.exercises.length; d.exercises.forEach(e=>{ const m=e.sets.match(/^(\d+)/); if(m) sets+=parseInt(m[1]); }); } });
+  document.getElementById('meta-ex').textContent=ex;
+  document.getElementById('meta-sets').textContent=sets;
+  document.getElementById('meta-days').textContent=active;
+}
+
+function updateVol(){
+  const bar=document.getElementById('vol-strip'), g=GOALS[goal], counts={};
+  days.forEach(d=>{ if(!d.isRest) d.exercises.forEach(e=>{ const m=e.sets.match(/^(\d+)/); counts[e.muscle]=(counts[e.muscle]||0)+(m?parseInt(m[1]):3); }); });
+  if(!Object.keys(counts).length){ bar.innerHTML='<span class="vol-empty">Add exercises to see weekly volume</span>'; return; }
+  bar.innerHTML='';
+  Object.entries(MUSCLES).forEach(([key,muscle])=>{
+    if(!counts[key]) return;
+    const s=counts[key], good=s>=g.wkMin;
+    const b=document.createElement('div'); b.className='vbadge '+(good?'good':'low');
+    b.title=good?`✓ On target (min ${g.wkMin} sets/wk)`:`⚠ Below ${g.wkMin} sets/wk minimum`;
+    b.innerHTML=`<span class="vdot" style="background:${muscle.color}"></span><span class="vname">${key.charAt(0).toUpperCase()+key.slice(1)}</span><span class="vcount">${s}/wk</span>`;
+    bar.appendChild(b);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ANALYZE
+// ═══════════════════════════════════════════════
+function analyzeProg(){
+  const panel=document.getElementById('sug-panel'), body=document.getElementById('sug-body'), tips=document.getElementById('sug-tips');
+  const g=GOALS[goal], active=days.filter(d=>!d.isRest);
+  const totalEx=active.reduce((a,d)=>a+d.exercises.length,0);
+  const counts={};
+  days.forEach(d=>{ if(!d.isRest) d.exercises.forEach(e=>{ const m=e.sets.match(/^(\d+)/); counts[e.muscle]=(counts[e.muscle]||0)+(m?parseInt(m[1]):3); }); });
+  const under=Object.entries(counts).filter(([k,v])=>v<g.wkMin).map(([k])=>k);
+  const notTrained=Object.keys(MUSCLES).filter(m=>!counts[m]);
+
+  let html='';
+  if(!totalEx){ html='<strong>No exercises added yet.</strong> Drag exercises from the sidebar or hit Load Template to get started.'; tips.innerHTML=''; body.innerHTML=html; panel.classList.add('on'); return; }
+
+  html+=`You're running a <strong>${SPLITS[split].label}</strong> with <strong>${active.length} active days</strong> targeting <strong>${g.label}</strong> over a <strong>${blockWeeks}-week block</strong>${deloadOn?' with a deload week':''}.`;
+
+  if(!overloadPlan.length) html+=' <strong>Tip:</strong> Select your overload methods in the sidebar and hit Generate Plan to build your week-by-week progression.';
+  else html+=` Your progressive overload plan uses: <strong>${[...selectedMethods].map(m=>OVERLOAD_METHODS.find(o=>o.id===m).name).join(', ')}</strong>.`;
+
+  if(under.length) html+=` The following muscles are below the ${g.wkMin} sets/week minimum for ${goal}: <strong>${under.join(', ')}</strong>. Consider adding a set or two across your training days.`;
+  if(notTrained.length) html+=` Not currently in your program: <strong>${notTrained.join(', ')}</strong>.`;
+
+  body.innerHTML=html;
+
+  const tList=[];
+  if(goal==='hypertrophy') tList.push('Track load week-to-week for each exercise');
+  if(goal==='strength') tList.push('Log RPE — aim for 8–9 on working sets');
+  if(goal==='power') tList.push('Prioritize speed on every concentric rep');
+  if(goal==='endurance') tList.push('Use a timer — minimize rest between sets');
+  if(deloadOn) tList.push(`Deload at ${deloadPct}% volume — recovery is part of the program`);
+  if(overloadPlan.length) tList.push('Re-evaluate working weights after each full block');
+  tList.push('Hover any exercise to see equipment alternatives');
+  tips.innerHTML=tList.map(t=>`<div class="stip">${t}</div>`).join('');
+  panel.classList.add('on');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  showToast('Analysis complete');
+}
+
+// ═══════════════════════════════════════════════
+// PRINT PROGRESSION
+// ═══════════════════════════════════════════════
+function buildPrintProgression(){
+  const cont=document.getElementById('print-prog'); cont.innerHTML='';
+  if(!overloadPlan.length) return;
+  const allEx=[];
+  days.forEach(d=>{ if(!d.isRest) d.exercises.forEach(e=>{ if(!allEx.find(x=>x.name===e.name)) allEx.push(e); }); });
+
+  // Print header
+  const hdr=document.createElement('div');
+  hdr.innerHTML=`<div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;margin-bottom:4px;color:#1a1a1a;">EmpowHER Strength LLC — Program Builder</div><div style="font-family:monospace;font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;">Built by Melody · Evidence-Based Training</div>`;
+  cont.appendChild(hdr);
+
+  overloadPlan.forEach(wp=>{
+    const block=document.createElement('div'); block.className='print-week-block';
+    const title=document.createElement('div'); title.className='print-week-title';
+    title.innerHTML=wp.label+(wp.isDeload?' <span class="deload-badge">DELOAD</span>':'');
+    block.appendChild(title);
+    const instrDiv=document.createElement('div');
+    instrDiv.style.cssText='margin-bottom:10px;font-size:11px;color:#555;line-height:1.6;';
+    instrDiv.innerHTML=wp.instructions.map(i=>`<span style="margin-right:14px;"><strong>${i.method}:</strong> ${i.detail}</span>`).join('');
+    block.appendChild(instrDiv);
+    if(allEx.length){
+      const tbl=document.createElement('table'); tbl.className='print-week-table';
+      tbl.innerHTML='<thead><tr><th>Exercise</th><th>Muscle</th><th>Sets × Reps</th><th>Focus / Notes</th><th>Actual Weight</th><th>Reps Completed</th></tr></thead>';
+      const tbody=document.createElement('tbody');
+      allEx.forEach(ex=>{
+        const sets=wp.isDeload?applyDeload(ex.sets):getWkSets(ex.sets,wp.week);
+        const notes=wp.instructions.filter(i=>['Tempo','Rest'].includes(i.method)).map(i=>i.detail).join(' | ')||'—';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${ex.name}</td><td>${ex.muscle}</td><td>${sets}</td><td>${notes}</td><td style="min-width:80px;">&nbsp;</td><td style="min-width:80px;">&nbsp;</td>`;
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody); block.appendChild(tbl);
+    }
+    cont.appendChild(block);
+  });
+
+  const footer=document.createElement('div');
+  footer.className='print-footer';
+  footer.textContent='EmpowHER Strength LLC · Built by Melody · empowherstrength.us · @empowher_strength on Instagram · Evidence-based programming for everyone';
+  cont.appendChild(footer);
+}
+
+// ═══════════════════════════════════════════════
+// NAV + PRINT
+// ═══════════════════════════════════════════════
+function openApp(){ document.getElementById('landing').style.display='none'; document.getElementById('app').classList.add('visible'); window.scrollTo(0,0); }
+function closeApp(){ document.getElementById('app').classList.remove('visible'); document.getElementById('landing').style.display='flex'; window.scrollTo(0,0); }
+
+function doPrint(){
+  buildPrintProgression();
+  document.getElementById('print-prog').style.display='block';
+  showToast('Printing...');
+  setTimeout(()=>{ window.print(); document.getElementById('print-prog').style.display='none'; },400);
+}
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+
+// ═══════════════════════════════════════════════
+// EMAIL + POPUP
+// ═══════════════════════════════════════════════
+function submitEmail(source){
+  const nameEl=document.getElementById(source==='popup'?'popup-name':'landing-name');
+  const emailEl=document.getElementById(source==='popup'?'popup-email':'landing-email');
+  const name=nameEl?nameEl.value.trim():'';
+  const email=emailEl?emailEl.value.trim():'';
+  if(!email||!email.includes('@')){ showToast('Please enter a valid email'); return; }
+
+  // Store locally (in production this would POST to your email service API e.g. Mailchimp/Kit)
+  const subs=JSON.parse(localStorage.getItem('empowher_subs')||'[]');
+  if(!subs.find(s=>s.email===email)){
+    subs.push({name,email,date:new Date().toISOString()});
+    localStorage.setItem('empowher_subs',JSON.stringify(subs));
+  }
+
+  if(source==='popup'){
+    closePopup();
+    showToast('Welcome to EmpowHER Strength! 🎉');
+  } else {
+    document.getElementById('landing-email-form').style.display='none';
+    document.getElementById('landing-email-success').classList.add('show');
+  }
+
+  // In production: replace above with a fetch() to Mailchimp/Kit API
+  // fetch('https://your-email-service-api.com/subscribe', {
+  //   method:'POST', body:JSON.stringify({name,email}),
+  //   headers:{'Content-Type':'application/json'}
+  // })
+}
+
+let popupShown=false;
+function startPopupTimer(){
+  // Show popup after 45 seconds if not already shown and not subscribed
+  setTimeout(()=>{
+    const subs=JSON.parse(localStorage.getItem('empowher_subs')||'[]');
+    const dismissed=localStorage.getItem('empowher_popup_dismissed');
+    if(!popupShown&&!subs.length&&!dismissed){
+      document.getElementById('email-popup').classList.add('show');
+      popupShown=true;
+    }
+  },45000);
+}
+
+function closePopup(){
+  document.getElementById('email-popup').classList.remove('show');
+  localStorage.setItem('empowher_popup_dismissed','true');
+}
+
+// Close popup if clicking overlay background
+document.getElementById('email-popup').addEventListener('click',function(e){
+  if(e.target===this) closePopup();
+});
+
+init();
+startPopupTimer();
+</script>
+</body>
+</html>
