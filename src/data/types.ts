@@ -92,6 +92,8 @@ export interface AnalysisResult {
 export interface SavedProgram {
   id: string;
   user_id: string;
+  assigned_to: string | null;
+  created_by: string | null;
   name: string;
   split: string;
   goal: string;
@@ -106,3 +108,42 @@ export interface SavedProgram {
 }
 
 export type SavedProgramInsert = Omit<SavedProgram, 'id' | 'created_at' | 'updated_at'>;
+
+export interface Profile {
+  id: string;
+  role: 'coach' | 'user' | null;
+  display_name: string | null;
+  email: string;
+  created_at: string;
+}
+
+export interface CoachStudent {
+  id: string;
+  coach_id: string;
+  student_id: string;
+  created_at: string;
+  profile?: Profile; // joined student profile
+}
+
+export interface CoachInvite {
+  id: string;
+  coach_id: string;
+  student_email: string;
+  status: 'pending' | 'accepted';
+  created_at: string;
+}
+
+export interface WorkoutLog {
+  id: string;
+  program_id: string;
+  user_id: string;
+  week: number;
+  day_index: number;
+  exercise_name: string;
+  actual_weight: string | null;
+  actual_reps: string | null;
+  notes: string | null;
+  logged_at: string;
+}
+
+export type WorkoutLogKey = string; // `${day_index}_${exercise_name}`

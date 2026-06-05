@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { DOW } from '../../data/constants';
 import { applyDeload, getWkDisplaySets, getWkDisplayWeight } from '../../hooks/useProgramBuilder';
-import type { Day, DragData, GoalKey, OverloadMethodId, WeekPlan } from '../../data/types';
+import { logKey } from '../../lib/workoutLogs';
+import type { Day, DragData, GoalKey, OverloadMethodId, WeekPlan, WorkoutLog, WorkoutLogKey } from '../../data/types';
 import { ExerciseBlock } from './ExerciseBlock';
 
 interface DayCardProps {
@@ -13,18 +14,22 @@ interface DayCardProps {
   selectedMethods: Set<OverloadMethodId>;
   deloadPct: number;
   goal: GoalKey;
+  isCoachView: boolean;
+  weekLogs: Record<WorkoutLogKey, WorkoutLog>;
   onToggleDay: (di: number) => void;
   onUpdateLabel: (di: number, label: string) => void;
   onRemoveExercise: (di: number, ei: number) => void;
   onSetsChange: (di: number, ei: number, sets: string) => void;
   onWeightChange: (di: number, ei: number, weight: string) => void;
+  onLogChange: (dayIndex: number, exerciseName: string, field: 'actual_weight' | 'actual_reps', value: string) => void;
   onDragStart: (data: DragData) => void;
   onDrop: (tdi: number, goal: GoalKey) => void;
 }
 
 export function DayCard({
   day, di, activeWeekView, isDeloadView, overloadPlan, selectedMethods, deloadPct, goal,
-  onToggleDay, onUpdateLabel, onRemoveExercise, onSetsChange, onWeightChange, onDragStart, onDrop,
+  isCoachView, weekLogs,
+  onToggleDay, onUpdateLabel, onRemoveExercise, onSetsChange, onWeightChange, onLogChange, onDragStart, onDrop,
 }: DayCardProps) {
   const [dragOver, setDragOver] = useState(false);
 
@@ -58,6 +63,7 @@ export function DayCard({
                   ? applyDeload(ex.sets, deloadPct)
                   : getWkDisplaySets(ex.sets, activeWeekView, overloadPlan, selectedMethods);
                 const displayWeight = getWkDisplayWeight(ex.weight, activeWeekView, overloadPlan, selectedMethods);
+                const log = weekLogs[logKey(di, ex.name)];
                 return (
                   <ExerciseBlock
                     key={ei}
@@ -67,9 +73,12 @@ export function DayCard({
                     displaySets={displaySets}
                     displayWeight={displayWeight}
                     isDeload={isDeloadView}
+                    log={log}
+                    isCoachView={isCoachView}
                     onRemove={onRemoveExercise}
                     onSetsChange={onSetsChange}
                     onWeightChange={onWeightChange}
+                    onLogChange={onLogChange}
                     onDragStart={(d, e) => onDragStart({ src: 'block', di: d, ei: e })}
                   />
                 );

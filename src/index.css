@@ -586,6 +586,92 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .prog-card-delete { color: var(--red) !important; border-color: rgba(217,112,112,.3) !important; }
 .prog-card-delete:hover { border-color: var(--red) !important; background: rgba(217,112,112,.08) !important; }
 
+/* ─── ROLE SELECT ─── */
+.role-card { background: var(--dark); border: 1px solid var(--border2); padding: 48px; width: 100%; max-width: 520px; }
+.role-question { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--text); margin: 24px 0 28px; line-height: 1.1; letter-spacing: -.3px; }
+.role-options { display: flex; flex-direction: column; gap: 10px; }
+.role-option {
+  display: flex; align-items: center; gap: 16px; padding: 20px;
+  background: var(--card); border: 1px solid var(--border); cursor: pointer;
+  transition: all .15s; text-align: left; width: 100%;
+}
+.role-option:hover { border-color: var(--accent); background: rgba(123,181,178,.04); }
+.role-option-icon { font-size: 24px; flex-shrink: 0; }
+.role-option-body { flex: 1; }
+.role-option-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text); margin-bottom: 4px; }
+.role-option-desc { font-size: 12px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+.role-option-arrow { color: var(--accent); font-size: 18px; flex-shrink: 0; }
+.role-footer-note { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); text-align: center; margin-top: 20px; letter-spacing: 1px; }
+
+/* ─── COACH DASHBOARD ─── */
+.coach-body { display: flex; flex: 1; overflow: hidden; min-height: 0; height: calc(100vh - 58px); }
+.coach-sidebar {
+  width: 260px; flex-shrink: 0; background: var(--dark); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.coach-sidebar-hdr { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
+.coach-roster-count { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.coach-main { flex: 1; overflow-y: auto; padding: 40px 48px; background: var(--bg); }
+
+.roster-list { display: flex; flex-direction: column; padding: 8px; gap: 2px; }
+.roster-item-wrap { display: flex; align-items: center; gap: 2px; }
+.roster-item {
+  flex: 1; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: transparent; border: 1px solid transparent; border-radius: 0;
+  cursor: pointer; transition: all .15s; text-align: left; width: 100%;
+}
+.roster-item:hover { background: var(--card); border-color: var(--border); }
+.roster-item.active { background: var(--card); border-color: var(--accent); }
+.roster-item-avatar {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dark); font-weight: 600; flex-shrink: 0;
+}
+.roster-item-name { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text); font-weight: 500; }
+.roster-item-meta { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); letter-spacing: 1px; margin-top: 1px; }
+.roster-item-remove { background: none; border: none; color: var(--border2); cursor: pointer; font-size: 10px; padding: 4px 6px; transition: color .15s; flex-shrink: 0; }
+.roster-item-remove:hover { color: var(--red); }
+.roster-item-pending { opacity: .5; cursor: default; }
+.roster-item-pending:hover { background: transparent; border-color: transparent; }
+.roster-pending-hdr { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 10px 12px 4px; }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: var(--dark); border: 1px solid var(--border2);
+  padding: 48px; max-width: 440px; width: 90%; position: relative;
+}
+
+/* ─── PROGRAM CARD BADGE ─── */
+.prog-card-badge {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 4px;
+}
+
+/* ─── EX BLOCK LOG FIELDS ─── */
+.exb-cols { display: flex; gap: 6px; flex-shrink: 0; align-items: flex-start; }
+.exb-col-group { display: flex; flex-direction: column; gap: 2px; }
+.exb-col-label {
+  font-family: 'DM Mono', monospace; font-size: 7px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 1px;
+}
+.exb-log-group { border-left: 1px solid var(--border); padding-left: 6px; }
+.exb-log-label { color: var(--gold) !important; }
+.exb-log-input { color: var(--gold) !important; border-color: rgba(237,210,134,.3) !important; }
+.exb-log-input:focus { border-color: var(--gold) !important; }
+.exb-log-input::placeholder { color: var(--border2); }
+
+/* Coach-view badge in prog-sub */
+.prog-sub-coach-badge {
+  display: inline-block; margin-left: 10px;
+  background: rgba(237,210,134,.12); border: 1px solid rgba(237,210,134,.3);
+  color: var(--gold); font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 1px 6px; vertical-align: middle;
+}
+
 /* ─── PRINT ─── */
 @media print {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }

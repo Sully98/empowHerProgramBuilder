@@ -3,6 +3,7 @@ import type { SavedProgram } from '../../data/types';
 
 interface ProgramCardProps {
   program: SavedProgram;
+  badge?: string; // e.g. student name for coach view
   onLoad: (p: SavedProgram) => void;
   onDuplicate: (p: SavedProgram) => void;
   onDelete: (id: string) => void;
@@ -38,7 +39,7 @@ function goalColor(goal: string): string {
   return map[goal] ?? 'var(--muted)';
 }
 
-export function ProgramCard({ program, onLoad, onDuplicate, onDelete }: ProgramCardProps) {
+export function ProgramCard({ program, badge, onLoad, onDuplicate, onDelete }: ProgramCardProps) {
   const splitLabel = SPLITS[program.split as keyof typeof SPLITS]?.label ?? program.split;
   const goalLabel  = GOALS[program.goal as keyof typeof GOALS]?.label ?? program.goal;
   const exCount    = countExercises(program);
@@ -51,7 +52,10 @@ export function ProgramCard({ program, onLoad, onDuplicate, onDelete }: ProgramC
   return (
     <div className="prog-card">
       <div className="prog-card-top">
-        <div className="prog-card-name">{program.name}</div>
+        <div>
+          {badge && <div className="prog-card-badge">{badge}</div>}
+          <div className="prog-card-name">{program.name}</div>
+        </div>
         <div className="prog-card-updated">{relativeDate(program.updated_at)}</div>
       </div>
 

@@ -3,6 +3,7 @@ import type { User } from '@supabase/supabase-js';
 interface AppHeaderProps {
   user: User | null;
   isSaving: boolean;
+  title?: string;
   onClose: () => void;
   onClear: () => void;
   onLoadTemplate: () => void;
@@ -13,14 +14,14 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({
-  user, isSaving, onClose, onClear, onLoadTemplate, onAnalyze, onPrint, onSave, onGoToDashboard,
+  user, isSaving, title, onClose, onClear, onLoadTemplate, onAnalyze, onPrint, onSave, onGoToDashboard,
 }: AppHeaderProps) {
   return (
     <header className="app-hdr">
       <div className="app-logo-wrap">
         <div className="app-logo">Empower<em>HER</em> Strength</div>
         <div className="hdr-div"></div>
-        <div className="app-logo-tag">Program Builder</div>
+        <div className="app-logo-tag">{title ?? 'Program Builder'}</div>
       </div>
       <div className="hdr-right">
         <button className="btn btn-ghost btn-sm" onClick={onClose}>← Back</button>
