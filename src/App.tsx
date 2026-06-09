@@ -8,7 +8,7 @@ import { EmailPopup } from './components/shared/EmailPopup';
 import { Toast } from './components/shared/Toast';
 import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
-import type { Profile, SavedProgram } from './data/types';
+import type { GoalKey, Profile, SavedProgram, SplitKey } from './data/types';
 
 type View = 'landing' | 'auth' | 'role-select' | 'dashboard' | 'app';
 
@@ -19,8 +19,10 @@ export default function App() {
   const [view, setView] = useState<View>('landing');
   const [loadedProgram, setLoadedProgram] = useState<SavedProgram | null>(null);
   const [viewForStudent, setViewForStudent] = useState<Profile | null>(null);
+  const [quizInitial, setQuizInitial] = useState<{ goal: GoalKey; split: SplitKey } | null>(null);
 
   const postAuthDest = useRef<'dashboard' | 'app'>('dashboard');
+  const pendingQuiz = useRef<{ goal: GoalKey; split: SplitKey } | null>(null);
 
   const [toastMsg, setToastMsg] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
@@ -39,6 +41,10 @@ export default function App() {
       if (!profile?.role) {
         setView('role-select');
       } else {
+        if (pendingQuiz.current) {
+          setQuizInitial(pendingQuiz.current);
+          pendingQuiz.current = null;
+        }
         setView(postAuthDest.current);
       }
       window.scrollTo(0, 0);
@@ -48,6 +54,10 @@ export default function App() {
   // After role is set: navigate to destination
   useEffect(() => {
     if (view === 'role-select' && profile?.role) {
+      if (pendingQuiz.current) {
+        setQuizInitial(pendingQuiz.current);
+        pendingQuiz.current = null;
+      }
       setView(postAuthDest.current);
       window.scrollTo(0, 0);
     }
@@ -68,14 +78,27 @@ export default function App() {
 
   const openApp = () => {
     if (!user) { goToAuth('app'); return; }
+    pendingQuiz.current = null;
+    setQuizInitial(null);
     setLoadedProgram(null);
     setViewForStudent(null);
     setView('app');
     window.scrollTo(0, 0);
   };
 
-  const openLanding   = () => { setView('landing');   window.scrollTo(0, 0); };
-  const openDashboard = () => { setView('dashboard'); window.scrollTo(0, 0); };
+  const openAppWithGoal = (goal: GoalKey, split: SplitKey) => {
+    pendingQuiz.current = { goal, split };
+    if (!user) { goToAuth('app'); return; }
+    setQuizInitial({ goal, split });
+    pendingQuiz.current = null;
+    setLoadedProgram(null);
+    setViewForStudent(null);
+    setView('app');
+    window.scrollTo(0, 0);
+  };
+
+  const openLanding   = () => { setQuizInitial(null); setView('landing');   window.scrollTo(0, 0); };
+  const openDashboard = () => { setQuizInitial(null); setView('dashboard'); window.scrollTo(0, 0); };
 
   const handleLoadProgram = (p: SavedProgram) => {
     setLoadedProgram(p);
@@ -128,6 +151,7 @@ export default function App() {
           onOpenApp={user ? openDashboard : () => goToAuth('dashboard')}
           onGoToAuth={() => goToAuth('dashboard')}
           onGoToDashboard={openDashboard}
+          onOpenAppWithGoal={openAppWithGoal}
           showToast={showToast}
         />
       )}
@@ -149,6 +173,7 @@ export default function App() {
           user={user}
           profile={profile}
           onNewProgram={openApp}
+          onOpenAppWithGoal={openAppWithGoal}
           onLoadProgram={handleLoadProgram}
           onLoadProgramForStudent={handleLoadProgramForStudent}
           onGoToLanding={openLanding}
@@ -163,6 +188,8 @@ export default function App() {
           userProfile={profile}
           loadedProgram={loadedProgram}
           viewForStudent={viewForStudent}
+          initialGoal={quizInitial?.goal}
+          initialSplit={quizInitial?.split}
           onCloseApp={openDashboard}
           onGoToDashboard={openDashboard}
           onGetWeeklyTips={scrollToSignup}

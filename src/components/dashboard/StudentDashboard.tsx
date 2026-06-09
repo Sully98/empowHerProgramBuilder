@@ -2,19 +2,22 @@ import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { deleteProgram, duplicateProgram, fetchPrograms } from '../../lib/programs';
 import { getMyCoach } from '../../lib/coaching';
-import type { CoachStudent, Profile, SavedProgram } from '../../data/types';
+import type { CoachStudent, GoalKey, Profile, SavedProgram, SplitKey } from '../../data/types';
 import { ProgramCard } from './ProgramCard';
+import { GoalQuiz } from '../landing/GoalQuiz';
 
 interface StudentDashboardProps {
   user: User;
   profile: Profile;
   onNewProgram: () => void;
+  onOpenAppWithGoal: (goal: GoalKey, split: SplitKey) => void;
   onLoadProgram: (p: SavedProgram) => void;
   onGoToLanding: () => void;
   onSignOut: () => void;
 }
 
-export function StudentDashboard({ user, profile, onNewProgram, onLoadProgram, onGoToLanding, onSignOut }: StudentDashboardProps) {
+export function StudentDashboard({ user, profile, onNewProgram, onOpenAppWithGoal, onLoadProgram, onGoToLanding, onSignOut }: StudentDashboardProps) {
+  const [showQuiz, setShowQuiz] = useState(false);
   const [myPrograms, setMyPrograms] = useState<SavedProgram[]>([]);
   const [coach, setCoach] = useState<(CoachStudent & { profile: Profile }) | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +71,26 @@ export function StudentDashboard({ user, profile, onNewProgram, onLoadProgram, o
         </div>
       </header>
 
+      {showQuiz && (
+        <div className="quiz-modal-overlay" onClick={() => setShowQuiz(false)}>
+          <div className="quiz-modal" onClick={e => e.stopPropagation()}>
+            <div className="quiz-modal-hdr">
+              <div className="quiz-modal-title">Find Your Goal</div>
+              <button className="quiz-modal-close" onClick={() => setShowQuiz(false)}>✕</button>
+            </div>
+            <div className="quiz-wrap">
+              <GoalQuiz
+                onResult={(goal, split) => {
+                  setShowQuiz(false);
+                  onOpenAppWithGoal(goal, split);
+                }}
+                ctaLabel="Build My Program with This Goal →"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="dash-body">
         {error && <div className="dash-error">{error}</div>}
 
@@ -75,6 +98,16 @@ export function StudentDashboard({ user, profile, onNewProgram, onLoadProgram, o
           <div className="dash-loading"><div className="dash-loading-text">Loading…</div></div>
         ) : (
           <>
+            <div className="quiz-prompt-card">
+              <div className="quiz-prompt-text">
+                <strong>Not sure where to start?</strong>
+                <span> Answer 3 quick questions and we'll pick the right training goal and split for you.</span>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowQuiz(true)}>
+                Take the Quiz →
+              </button>
+            </div>
+
             {/* Coach-assigned programs */}
             {coachPrograms.length > 0 && (
               <div style={{ marginBottom: '40px' }}>

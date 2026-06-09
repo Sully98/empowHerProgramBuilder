@@ -1,12 +1,13 @@
 import type { User } from '@supabase/supabase-js';
 import { CoachDashboard } from '../coach/CoachDashboard';
-import type { Profile, SavedProgram } from '../../data/types';
+import type { GoalKey, Profile, SavedProgram, SplitKey } from '../../data/types';
 import { StudentDashboard } from './StudentDashboard';
 
 interface DashboardPageProps {
   user: User;
   profile: Profile;
   onNewProgram: () => void;
+  onOpenAppWithGoal: (goal: GoalKey, split: SplitKey) => void;
   onLoadProgram: (p: SavedProgram) => void;
   onLoadProgramForStudent: (p: SavedProgram, student: Profile) => void;
   onGoToLanding: () => void;
@@ -14,7 +15,7 @@ interface DashboardPageProps {
 }
 
 export function DashboardPage({
-  user, profile, onNewProgram, onLoadProgram, onLoadProgramForStudent, onGoToLanding, onSignOut,
+  user, profile, onNewProgram, onOpenAppWithGoal, onLoadProgram, onLoadProgramForStudent, onGoToLanding, onSignOut,
 }: DashboardPageProps) {
   if (profile.role === 'coach') {
     return (
@@ -35,6 +36,7 @@ export function DashboardPage({
       user={user}
       profile={profile}
       onNewProgram={onNewProgram}
+      onOpenAppWithGoal={onOpenAppWithGoal}
       onLoadProgram={onLoadProgram}
       onGoToLanding={onGoToLanding}
       onSignOut={onSignOut}

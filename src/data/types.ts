@@ -17,6 +17,7 @@ export interface GoalResearch {
 
 export interface Goal {
   label: string;
+  plain: string;
   color: string;
   sets: string;
   reps: string;

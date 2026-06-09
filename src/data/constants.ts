@@ -12,7 +12,7 @@ export const OVERLOAD_METHODS: OverloadMethod[] = [
 
 export const GOALS: Record<GoalKey, Goal> = {
   hypertrophy: {
-    label: 'Hypertrophy', color: 'var(--accent)', sets: '3–4', reps: '6–12', load: '67–85% 1RM',
+    label: 'Hypertrophy', plain: 'Build Muscle', color: 'var(--accent)', sets: '3–4', reps: '6–12', load: '67–85% 1RM',
     rest: '60–90 sec', wkMin: 10, wkTarget: '10–20 sets/muscle',
     defSets: () => '3×8–12',
     research: [
@@ -21,7 +21,7 @@ export const GOALS: Record<GoalKey, Goal> = {
     ],
   },
   strength: {
-    label: 'Strength', color: 'var(--gold)', sets: '3–5', reps: '1–6', load: '≥85% 1RM',
+    label: 'Strength', plain: 'Get Stronger', color: 'var(--gold)', sets: '3–5', reps: '1–6', load: '≥85% 1RM',
     rest: '3–5 min', wkMin: 6, wkTarget: '6–10 sets/muscle',
     defSets: () => '4×4–6',
     research: [
@@ -30,7 +30,7 @@ export const GOALS: Record<GoalKey, Goal> = {
     ],
   },
   power: {
-    label: 'Power', color: '#c17d5a', sets: '3–5', reps: '1–5', load: '75–90% 1RM',
+    label: 'Power', plain: 'Be More Athletic', color: '#c17d5a', sets: '3–5', reps: '1–5', load: '75–90% 1RM',
     rest: '3–5 min', wkMin: 4, wkTarget: '4–8 sets/muscle',
     defSets: () => '4×3–5',
     research: [
@@ -39,7 +39,7 @@ export const GOALS: Record<GoalKey, Goal> = {
     ],
   },
   endurance: {
-    label: 'Endurance', color: '#7aab80', sets: '2–3', reps: '15–25', load: '30–60% 1RM',
+    label: 'Endurance', plain: 'Build Stamina', color: '#7aab80', sets: '2–3', reps: '15–25', load: '30–60% 1RM',
     rest: '≤30 sec', wkMin: 4, wkTarget: '4–8 sets/muscle',
     defSets: () => '3×15–20',
     research: [

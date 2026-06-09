@@ -3,7 +3,7 @@ import type { User } from '@supabase/supabase-js';
 import { upsertProgram } from '../../lib/programs';
 import { fetchLogsForWeek, upsertLog } from '../../lib/workoutLogs';
 import { useProgramBuilder } from '../../hooks/useProgramBuilder';
-import type { Profile, SavedProgram, WorkoutLog, WorkoutLogKey } from '../../data/types';
+import type { GoalKey, Profile, SavedProgram, SplitKey, WorkoutLog, WorkoutLogKey } from '../../data/types';
 import { AppHeader } from './AppHeader';
 import { AppSocialBanner } from './AppSocialBanner';
 import { MainArea } from './MainArea';
@@ -13,8 +13,9 @@ interface AppShellProps {
   user: User;
   userProfile: Profile | null;
   loadedProgram: SavedProgram | null;
-  // When a coach opens a student's program, this is the student
   viewForStudent: Profile | null;
+  initialGoal?: GoalKey;
+  initialSplit?: SplitKey;
   onCloseApp: () => void;
   onGoToDashboard: () => void;
   onGetWeeklyTips: () => void;
@@ -23,9 +24,17 @@ interface AppShellProps {
 
 export function AppShell({
   user, userProfile, loadedProgram, viewForStudent,
+  initialGoal, initialSplit,
   onCloseApp, onGoToDashboard, onGetWeeklyTips, showToast,
 }: AppShellProps) {
   const pb = useProgramBuilder();
+
+  useEffect(() => {
+    if (!loadedProgram && (initialGoal || initialSplit)) {
+      if (initialGoal) pb.setGoal(initialGoal);
+      if (initialSplit) pb.setSplit(initialSplit);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [isSaving, setIsSaving] = useState(false);
   const [weekLogs, setWeekLogs] = useState<Record<WorkoutLogKey, WorkoutLog>>({});
 
