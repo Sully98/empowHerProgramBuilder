@@ -272,9 +272,15 @@ export function useProgramBuilder() {
     dragDataRef.current = data;
   }, []);
 
-  const handleDrop = useCallback((tdi: number, currentGoal: GoalKey) => {
+  const handleDrop = useCallback((tdi: number, currentGoal: GoalKey, tei?: number) => {
     const data = dragDataRef.current;
     if (!data) return;
+
+    const insertAt = (arr: ProgramExercise[], item: ProgramExercise, idx?: number) => {
+      if (idx !== undefined) arr.splice(idx, 0, item);
+      else arr.push(item);
+    };
+
     if (data.src === 'sb') {
       let newEx: ProgramExercise;
       if (data.customName) {
@@ -298,17 +304,22 @@ export function useProgramBuilder() {
       }
       setDays(prev => {
         const next = prev.map(d => ({ ...d, exercises: [...d.exercises] }));
-        next[tdi].exercises.push(newEx);
+        insertAt(next[tdi].exercises, newEx, tei);
         return next;
       });
     } else {
       const di = data.di!;
       const ei = data.ei!;
-      if (di === tdi) { dragDataRef.current = null; return; }
       setDays(prev => {
         const next = prev.map(d => ({ ...d, exercises: [...d.exercises] }));
         const [moved] = next[di].exercises.splice(ei, 1);
-        next[tdi].exercises.push(moved);
+        if (di === tdi) {
+          // same-day reorder: after splice the indices shift
+          const adjusted = tei !== undefined ? (tei > ei ? tei - 1 : tei) : next[tdi].exercises.length;
+          next[tdi].exercises.splice(adjusted, 0, moved);
+        } else {
+          insertAt(next[tdi].exercises, moved, tei);
+        }
         return next;
       });
     }

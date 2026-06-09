@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { GOALS, MUSCLES, OVERLOAD_METHODS, SPLITS } from '../../data/constants';
-import type { DragData, Exercise, GoalKey, OverloadMethodId, SplitKey } from '../../data/types';
+import type { DragData, GoalKey, OverloadMethodId, SplitKey } from '../../data/types';
 
-interface CustomExercise extends Exercise {
+interface CustomExercise {
+  n: string;
+  eq: string[];
   muscle: string;
   color: string;
 }
@@ -32,13 +34,13 @@ const GOAL_COLORS: Record<GoalKey, string> = {
 };
 
 const EQUIPMENT_OPTIONS = [
-  { key: 'Barbell',      label: 'Barbell' },
-  { key: 'Dumbbell',     label: 'Dumbbell' },
-  { key: 'Cable',        label: 'Cable' },
-  { key: 'Machine',      label: 'Machine' },
-  { key: 'Band',         label: 'Bands' },
-  { key: 'Bodyweight',   label: 'Bodyweight' },
-  { key: 'Kettlebell',   label: 'Kettlebell' },
+  { key: 'Barbell',       label: 'Barbell' },
+  { key: 'Dumbbell',      label: 'Dumbbell' },
+  { key: 'Cable',         label: 'Cable' },
+  { key: 'Machine',       label: 'Machine' },
+  { key: 'Band',          label: 'Bands' },
+  { key: 'Bodyweight',    label: 'Bodyweight' },
+  { key: 'Kettlebell',    label: 'Kettlebell' },
   { key: 'Smith Machine', label: 'Smith' },
 ];
 
@@ -52,6 +54,8 @@ const EQ_SHORT: Record<string, string> = {
   Kettlebell: 'KB', Band: 'Band', Cable: 'Cable', 'Smith Machine': 'Smith',
 };
 
+const EMPTY_FORM = { name: '', muscle: 'chest', eq: new Set<string>() };
+
 export function Sidebar({
   split, goal, blockWeeks, deloadOn, deloadPct, selectedMethods,
   onSetSplit, onSetGoal, onBlockWeeksChange, onToggleDeload, onDeloadPctChange,
@@ -61,26 +65,37 @@ export function Sidebar({
     () => new Set(['Barbell', 'Dumbbell', 'Cable', 'Machine', 'Band', 'Bodyweight', 'Kettlebell'])
   );
   const [customExercises, setCustomExercises] = useState<CustomExercise[]>([]);
-  const [customForm, setCustomForm] = useState({ name: '', muscle: 'chest', eq: new Set<string>() });
-  const [customFormOpen, setCustomFormOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [customForm, setCustomForm] = useState<{ name: string; muscle: string; eq: Set<string> }>(EMPTY_FORM);
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const addCustomExercise = () => {
-    const name = customForm.name.trim();
-    if (!name) return;
-    const muscleData = MUSCLES[customForm.muscle];
-    setCustomExercises(prev => [
-      ...prev,
-      { n: name, eq: [...customForm.eq], muscle: customForm.muscle, color: muscleData.color },
-    ]);
-    setCustomForm(prev => ({ ...prev, name: '', eq: new Set() }));
-    setCustomFormOpen(false);
+  const toggleEquipment = (key: string) => {
+    setAvailableEquipment(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
   };
 
-  const removeCustomExercise = (i: number) => {
-    setCustomExercises(prev => prev.filter((_, idx) => idx !== i));
+  const exerciseAvailable = (eq: string[]) => eq.length === 0 || eq.some(e => availableEquipment.has(e));
+
+  const toggleSection = (key: string) => {
+    setOpenSections(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
   };
 
-  const toggleCustomEq = (key: string) => {
+  const openModal = () => {
+    setCustomForm(EMPTY_FORM);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => setModalOpen(false);
+
+  const toggleFormEq = (key: string) => {
     setCustomForm(prev => {
       const next = new Set(prev.eq);
       next.has(key) ? next.delete(key) : next.add(key);
@@ -88,24 +103,37 @@ export function Sidebar({
     });
   };
 
-  const toggleEquipment = (key: string) => {
-    setAvailableEquipment(prev => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key); else next.add(key);
-      return next;
-    });
+  const saveCustomExercise = () => {
+    const name = customForm.name.trim();
+    if (!name || !customForm.muscle) return;
+    const muscleKey = customForm.muscle;
+    const color = MUSCLES[muscleKey]?.color ?? '#888888';
+    setCustomExercises(prev => [...prev, { n: name, eq: [...customForm.eq], muscle: muscleKey, color }]);
+    // ensure that muscle group section is open so they see it
+    setOpenSections(prev => new Set([...prev, muscleKey]));
+    closeModal();
   };
 
-  const exerciseAvailable = (eq: string[]) => eq.length === 0 || eq.some(e => availableEquipment.has(e));
-
-  const openAccordion = (el: HTMLElement) => {
-    const hdr = el.closest('.mhdr') as HTMLElement | null;
-    const list = hdr?.nextElementSibling as HTMLElement | null;
-    if (hdr && list) {
-      hdr.classList.toggle('open');
-      list.classList.toggle('open');
-    }
+  const removeCustomExercise = (idx: number) => {
+    setCustomExercises(prev => prev.filter((_, i) => i !== idx));
   };
+
+  const q = searchQuery.trim().toLowerCase();
+
+  // Build combined exercise list per muscle, filtered by search
+  const muscleEntries = Object.entries(MUSCLES).map(([key, muscle]) => {
+    const builtIn = muscle.exercises.map((ex, i) => ({ ex, i, isCustom: false as const }));
+    const custom = customExercises
+      .map((ex, i) => ({ ex, i, isCustom: true as const }))
+      .filter(({ ex }) => ex.muscle === key);
+    const all = [...builtIn, ...custom];
+    const filtered = q ? all.filter(({ ex }) => ex.n.toLowerCase().includes(q)) : all;
+    return { key, muscle, filtered };
+  });
+
+  // When searching, auto-expand sections with matches; otherwise use openSections
+  const isSectionOpen = (key: string, hasMatches: boolean) =>
+    q ? hasMatches : openSections.has(key);
 
   return (
     <aside className="sb">
@@ -227,141 +255,223 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Custom Exercise */}
-      <div className="sb-sec" style={{ background: 'rgba(123,181,178,.04)', borderLeft: '3px solid var(--accent)' }}>
-        <div className="sb-sec-hdr" style={{ cursor: 'pointer' }} onClick={() => setCustomFormOpen(o => !o)}>
-          <span className="sb-lbl">Custom Exercise</span>
-          <span className="mchev" style={{ fontSize: '10px', color: 'var(--muted)' }}>{customFormOpen ? '▲' : '▼'}</span>
-        </div>
-
-        {customFormOpen && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-            <input
-              className="block-input"
-              style={{ width: '100%', boxSizing: 'border-box', fontSize: '11px', padding: '4px 6px' }}
-              type="text"
-              placeholder="Exercise name"
-              value={customForm.name}
-              onChange={e => setCustomForm(prev => ({ ...prev, name: e.target.value }))}
-              onKeyDown={e => e.key === 'Enter' && addCustomExercise()}
-            />
-            <select
-              style={{ width: '100%', background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '11px', padding: '4px 6px' }}
-              value={customForm.muscle}
-              onChange={e => setCustomForm(prev => ({ ...prev, muscle: e.target.value }))}
-            >
-              {Object.keys(MUSCLES).map(m => (
-                <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
-              ))}
-            </select>
-            <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>Equipment (optional)</div>
-            <div className="eq-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-              {EQUIPMENT_OPTIONS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={`eq-btn${customForm.eq.has(key) ? ' active' : ''}`}
-                  style={{ fontSize: '9px', padding: '3px 4px' }}
-                  onClick={() => toggleCustomEq(key)}
-                >
-                  <span className="eq-check">{customForm.eq.has(key) ? '✓' : ''}</span>
-                  {label}
-                </button>
-              ))}
-            </div>
-            <button
-              className="btn btn-ghost btn-sm"
-              style={{ width: '100%', marginTop: '2px' }}
-              onClick={addCustomExercise}
-            >
-              + Add Exercise
-            </button>
-          </div>
-        )}
-
-        {customExercises.length > 0 && (
-          <div className="exlist" style={{ marginTop: '8px' }}>
-            {customExercises.map((ex, i) => (
-              <div
-                key={i}
-                className="echip"
-                draggable
-                style={{ borderLeftColor: ex.color, cursor: 'grab' }}
-                title={ex.eq.length ? `Equipment: ${ex.eq.join(', ')}` : 'No equipment specified'}
-                onDragStart={() => onDragStart({ src: 'sb', muscle: ex.muscle, color: ex.color, customName: ex.n, customEquipment: ex.eq })}
-              >
-                <span className="cdot" style={{ background: ex.color, flexShrink: 0 }}></span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.3 }}>{ex.n}</div>
-                  <div className="eq-tags">
-                    {ex.eq.slice(0, 4).map(e => (
-                      <span key={e} className={`eq-tag ${EQ_CLASS[e] ?? 'other'}`}>{EQ_SHORT[e] ?? e.slice(0, 5)}</span>
-                    ))}
-                    {ex.eq.length === 0 && <span style={{ fontSize: '9px', color: 'var(--muted)' }}>Custom</span>}
-                  </div>
-                </div>
-                <button
-                  style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '12px', padding: '0 2px', lineHeight: 1 }}
-                  onClick={e => { e.stopPropagation(); removeCustomExercise(i); }}
-                  title="Remove"
-                >×</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Exercise Library */}
       <div className="sb-sec" style={{ flex: 1 }}>
         <div className="sb-sec-hdr">
           <span className="sb-lbl">Exercise Library — Drag to Day</span>
           <span className="sb-step">06</span>
         </div>
+
+        {/* Search */}
+        <div style={{ position: 'relative', marginBottom: '8px' }}>
+          <span style={{
+            position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)',
+            color: 'var(--muted)', fontSize: '11px', pointerEvents: 'none',
+          }}>⌕</span>
+          <input
+            type="text"
+            placeholder="Search exercises..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              background: 'var(--card)', border: '1px solid var(--border2)',
+              color: 'var(--text)', fontSize: '11px', padding: '6px 28px 6px 24px',
+              outline: 'none', fontFamily: "'DM Sans', sans-serif",
+            }}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)',
+                background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer',
+                fontSize: '12px', lineHeight: 1, padding: '0 2px',
+              }}
+            >✕</button>
+          )}
+        </div>
+
         <div className="mac">
-          {Object.entries(MUSCLES).map(([key, muscle]) => (
-            <div key={key}>
-              <div className="mhdr" onClick={e => openAccordion(e.currentTarget)}>
-                <span className="mname" style={{ color: muscle.color }}>
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </span>
-                <span className="mchev">▼</span>
-              </div>
-              <div className="exlist">
-                {muscle.exercises.map((ex, i) => {
-                  const avail = exerciseAvailable(ex.eq);
-                  return (
-                    <div
-                      key={i}
-                      className="echip"
-                      draggable={avail}
-                      style={{
-                        borderLeftColor: muscle.color,
-                        opacity: avail ? 1 : 0.3,
-                        cursor: avail ? 'grab' : 'not-allowed',
-                      }}
-                      title={avail ? `Equipment: ${ex.eq.join(', ')}` : 'Equipment not available for this exercise'}
-                      onDragStart={avail ? () => onDragStart({ src: 'sb', muscle: key, ei: i, color: muscle.color }) : undefined}
-                    >
-                      <span className="cdot" style={{ background: muscle.color, flexShrink: 0 }}></span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.3 }}>{ex.n}</div>
-                        <div className="eq-tags">
-                          {ex.eq.slice(0, 4).map(e => (
-                            <span key={e} className={`eq-tag ${EQ_CLASS[e] ?? 'other'}`}>
-                              {EQ_SHORT[e] ?? e.slice(0, 5)}
-                            </span>
-                          ))}
+          {muscleEntries.map(({ key, muscle, filtered }) => {
+            if (q && filtered.length === 0) return null;
+            const open = isSectionOpen(key, filtered.length > 0);
+            return (
+              <div key={key}>
+                <div
+                  className={`mhdr${open ? ' open' : ''}`}
+                  onClick={() => !q && toggleSection(key)}
+                  style={{ cursor: q ? 'default' : 'pointer' }}
+                >
+                  <span className="mname" style={{ color: muscle.color }}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </span>
+                  {!q && <span className="mchev">{open ? '▲' : '▼'}</span>}
+                </div>
+                {open && (
+                  <div className="exlist open">
+                    {filtered.map(({ ex, i, isCustom }) => {
+                      const avail = exerciseAvailable(ex.eq);
+                      return (
+                        <div
+                          key={`${isCustom ? 'c' : 'b'}-${i}`}
+                          className="echip"
+                          draggable={avail}
+                          style={{
+                            borderLeftColor: muscle.color,
+                            opacity: avail ? 1 : 0.3,
+                            cursor: avail ? 'grab' : 'not-allowed',
+                          }}
+                          title={avail
+                            ? (ex.eq.length ? `Equipment: ${ex.eq.join(', ')}` : 'No equipment required')
+                            : 'Equipment not available for this exercise'}
+                          onDragStart={avail
+                            ? () => isCustom
+                              ? onDragStart({ src: 'sb', muscle: key, color: muscle.color, customName: ex.n, customEquipment: ex.eq })
+                              : onDragStart({ src: 'sb', muscle: key, ei: i, color: muscle.color })
+                            : undefined}
+                        >
+                          <span className="cdot" style={{ background: muscle.color, flexShrink: 0 }}></span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.3, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {ex.n}
+                              {isCustom && (
+                                <span style={{
+                                  fontFamily: "'DM Mono',monospace", fontSize: '7px', letterSpacing: '.5px',
+                                  textTransform: 'uppercase', padding: '1px 4px',
+                                  background: 'rgba(237,210,134,.1)', border: '1px solid rgba(237,210,134,.2)',
+                                  color: 'var(--gold)', flexShrink: 0,
+                                }}>Custom</span>
+                              )}
+                            </div>
+                            <div className="eq-tags">
+                              {ex.eq.slice(0, 4).map(e => (
+                                <span key={e} className={`eq-tag ${EQ_CLASS[e] ?? 'other'}`}>
+                                  {EQ_SHORT[e] ?? e.slice(0, 5)}
+                                </span>
+                              ))}
+                              {ex.eq.length === 0 && isCustom && (
+                                <span style={{ fontSize: '9px', color: 'var(--muted)' }}>No equipment</span>
+                              )}
+                            </div>
+                          </div>
+                          {isCustom ? (
+                            <button
+                              style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '12px', padding: '0 2px', lineHeight: 1, flexShrink: 0 }}
+                              onClick={e => { e.stopPropagation(); removeCustomExercise(i); }}
+                              title="Remove custom exercise"
+                            >×</button>
+                          ) : (
+                            <span className="cdrag">⠿</span>
+                          )}
                         </div>
-                      </div>
-                      <span className="cdrag">⠿</span>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <button
+          className="btn btn-ghost btn-sm"
+          style={{ width: '100%', marginTop: '10px', borderStyle: 'dashed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          onClick={openModal}
+        >
+          + Add Custom Exercise
+          <span style={{
+            fontFamily: "'DM Mono',monospace", fontSize: '7px', letterSpacing: '.5px',
+            textTransform: 'uppercase', padding: '1px 5px',
+            background: 'rgba(237,210,134,.1)', border: '1px solid rgba(237,210,134,.2)',
+            color: 'var(--gold)',
+          }}>Custom</span>
+        </button>
+      </div>
+
+      {/* Custom Exercise Modal */}
+      {modalOpen && (
+        <div
+          className="modal-overlay"
+          onClick={e => { if (e.target === e.currentTarget) closeModal(); }}
+        >
+          <div className="modal-box" style={{ position: 'relative' }}>
+            <button
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'var(--muted)', fontSize: '16px', cursor: 'pointer', lineHeight: 1 }}
+              onClick={closeModal}
+            >✕</button>
+
+            <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '26px', fontWeight: 600, marginBottom: '4px' }}>
+              Add Custom Exercise
+            </div>
+            <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '20px' }}>
+              It goes straight into your library — drag it onto any day
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+                Exercise Name
+              </div>
+              <input
+                autoFocus
+                style={{ background: 'var(--card)', border: '1px solid var(--border2)', color: 'var(--text)', fontFamily: "'DM Sans',sans-serif", fontSize: '13px', padding: '10px 14px', outline: 'none', width: '100%', boxSizing: 'border-box' }}
+                type="text"
+                placeholder="e.g. Landmine Press, Nordic Curl..."
+                value={customForm.name}
+                onChange={e => setCustomForm(prev => ({ ...prev, name: e.target.value }))}
+                onKeyDown={e => e.key === 'Enter' && saveCustomExercise()}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+                Muscle Group
+              </div>
+              <select
+                style={{ background: 'var(--card)', border: '1px solid var(--border2)', color: 'var(--text)', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '1px', padding: '10px 14px', outline: 'none', width: '100%', cursor: 'pointer', appearance: 'none' }}
+                value={customForm.muscle}
+                onChange={e => setCustomForm(prev => ({ ...prev, muscle: e.target.value }))}
+              >
+                {Object.keys(MUSCLES).map(m => (
+                  <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '20px' }}>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+                Equipment — select all that apply
+              </div>
+              <div className="eq-grid">
+                {EQUIPMENT_OPTIONS.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`eq-btn${customForm.eq.has(key) ? ' active' : ''}`}
+                    onClick={() => toggleFormEq(key)}
+                  >
+                    <span className="eq-check">{customForm.eq.has(key) ? '✓' : ''}</span>
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
-          ))}
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                className="btn btn-primary btn-sm"
+                style={{ flex: 1 }}
+                onClick={saveCustomExercise}
+              >
+                Add to Library →
+              </button>
+              <button className="btn btn-ghost btn-sm" onClick={closeModal}>
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
     </aside>
   );

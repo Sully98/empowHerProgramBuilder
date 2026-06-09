@@ -23,7 +23,7 @@ interface DayCardProps {
   onWeightChange: (di: number, ei: number, weight: string) => void;
   onLogChange: (dayIndex: number, exerciseName: string, field: 'actual_weight' | 'actual_reps', value: string) => void;
   onDragStart: (data: DragData) => void;
-  onDrop: (tdi: number, goal: GoalKey) => void;
+  onDrop: (tdi: number, goal: GoalKey, tei?: number) => void;
 }
 
 export function DayCard({
@@ -32,13 +32,14 @@ export function DayCard({
   onToggleDay, onUpdateLabel, onRemoveExercise, onSetsChange, onWeightChange, onLogChange, onDragStart, onDrop,
 }: DayCardProps) {
   const [dragOver, setDragOver] = useState(false);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
 
   return (
     <div
       className={`day-card${day.isRest ? ' rest' : ''}${dragOver ? ' drag-over' : ''}`}
-      onDragOver={e => { if (!day.isRest) { e.preventDefault(); setDragOver(true); } }}
-      onDragLeave={() => setDragOver(false)}
-      onDrop={e => { e.preventDefault(); setDragOver(false); onDrop(di, goal); }}
+      onDragOver={e => { if (!day.isRest) { e.preventDefault(); setDragOver(true); setDropIndex(day.exercises.length); } }}
+      onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) { setDragOver(false); setDropIndex(null); } }}
+      onDrop={e => { e.preventDefault(); setDragOver(false); const idx = dropIndex; setDropIndex(null); onDrop(di, goal, idx ?? undefined); }}
     >
       <div className="day-hdr">
         <span className="day-dow">{DOW[di]}</span>
@@ -65,22 +66,29 @@ export function DayCard({
                 const displayWeight = getWkDisplayWeight(ex.weight, activeWeekView, overloadPlan, selectedMethods);
                 const log = weekLogs[logKey(di, ex.name)];
                 return (
-                  <ExerciseBlock
+                  <div
                     key={ei}
-                    ex={ex}
-                    di={di}
-                    ei={ei}
-                    displaySets={displaySets}
-                    displayWeight={displayWeight}
-                    isDeload={isDeloadView}
-                    log={log}
-                    isCoachView={isCoachView}
-                    onRemove={onRemoveExercise}
-                    onSetsChange={onSetsChange}
-                    onWeightChange={onWeightChange}
-                    onLogChange={onLogChange}
-                    onDragStart={(d, e) => onDragStart({ src: 'block', di: d, ei: e })}
-                  />
+                    onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDropIndex(ei); setDragOver(true); }}
+                  >
+                    {dropIndex === ei && (
+                      <div style={{ height: '2px', background: 'var(--accent)', margin: '2px 0', borderRadius: '1px' }} />
+                    )}
+                    <ExerciseBlock
+                      ex={ex}
+                      di={di}
+                      ei={ei}
+                      displaySets={displaySets}
+                      displayWeight={displayWeight}
+                      isDeload={isDeloadView}
+                      log={log}
+                      isCoachView={isCoachView}
+                      onRemove={onRemoveExercise}
+                      onSetsChange={onSetsChange}
+                      onWeightChange={onWeightChange}
+                      onLogChange={onLogChange}
+                      onDragStart={(d, e) => onDragStart({ src: 'block', di: d, ei: e })}
+                    />
+                  </div>
                 );
               })
         )}

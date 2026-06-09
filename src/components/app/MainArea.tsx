@@ -34,7 +34,7 @@ interface MainAreaProps {
   onWeightChange: (di: number, ei: number, weight: string) => void;
   onLogChange: (dayIndex: number, exerciseName: string, field: 'actual_weight' | 'actual_reps', value: string) => void;
   onDragStart: (data: DragData) => void;
-  onDrop: (tdi: number, goal: GoalKey) => void;
+  onDrop: (tdi: number, goal: GoalKey, tei?: number) => void;
   onDismissOverload: () => void;
   onDismissAnalysis: () => void;
 }
