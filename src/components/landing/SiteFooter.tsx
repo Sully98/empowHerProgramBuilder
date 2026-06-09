@@ -10,7 +10,7 @@ export function SiteFooter() {
           🌐 empowherstrength.us
         </a>
       </div>
-      <div className="footer-copy">© 2025 EmpowHER Strength LLC · Built by Melody · All rights reserved</div>
+      <div className="footer-copy">© 2025 EmpowHER Strength LLC · Built by Real Coaches · All rights reserved</div>
     </footer>
   );
 }

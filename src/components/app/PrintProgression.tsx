@@ -25,7 +25,7 @@ export function PrintProgression({ overloadPlan, days, selectedMethods, deloadPc
           EmpowHER Strength LLC — Program Builder
         </div>
         <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#888', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '20px' }}>
-          Built by Melody · Evidence-Based Training
+          Built by Real Coaches · Evidence-Based Training
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export function PrintProgression({ overloadPlan, days, selectedMethods, deloadPc
       ))}
 
       <div className="print-footer">
-        EmpowHER Strength LLC · Built by Melody · empowherstrength.us · @empowher_strength on Instagram · Evidence-based programming for everyone
+        EmpowHER Strength LLC · Built by Real Coaches · empowherstrength.us · @empowher_strength on Instagram · Evidence-based programming for everyone
       </div>
     </div>
   );
