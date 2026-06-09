@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { GOALS, MUSCLES, OVERLOAD_METHODS, SPLITS } from '../../data/constants';
-import type { DragData, GoalKey, OverloadMethodId, SplitKey } from '../../data/types';
+import type { DragData, Exercise, GoalKey, OverloadMethodId, SplitKey } from '../../data/types';
+
+interface CustomExercise extends Exercise {
+  muscle: string;
+  color: string;
+}
 
 interface SidebarProps {
   split: SplitKey;
@@ -55,6 +60,33 @@ export function Sidebar({
   const [availableEquipment, setAvailableEquipment] = useState<Set<string>>(
     () => new Set(['Barbell', 'Dumbbell', 'Cable', 'Machine', 'Band', 'Bodyweight', 'Kettlebell'])
   );
+  const [customExercises, setCustomExercises] = useState<CustomExercise[]>([]);
+  const [customForm, setCustomForm] = useState({ name: '', muscle: 'chest', eq: new Set<string>() });
+  const [customFormOpen, setCustomFormOpen] = useState(false);
+
+  const addCustomExercise = () => {
+    const name = customForm.name.trim();
+    if (!name) return;
+    const muscleData = MUSCLES[customForm.muscle];
+    setCustomExercises(prev => [
+      ...prev,
+      { n: name, eq: [...customForm.eq], muscle: customForm.muscle, color: muscleData.color },
+    ]);
+    setCustomForm(prev => ({ ...prev, name: '', eq: new Set() }));
+    setCustomFormOpen(false);
+  };
+
+  const removeCustomExercise = (i: number) => {
+    setCustomExercises(prev => prev.filter((_, idx) => idx !== i));
+  };
+
+  const toggleCustomEq = (key: string) => {
+    setCustomForm(prev => {
+      const next = new Set(prev.eq);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return { ...prev, eq: next };
+    });
+  };
 
   const toggleEquipment = (key: string) => {
     setAvailableEquipment(prev => {
@@ -193,6 +225,90 @@ export function Sidebar({
             );
           })}
         </div>
+      </div>
+
+      {/* Custom Exercise */}
+      <div className="sb-sec" style={{ background: 'rgba(123,181,178,.04)', borderLeft: '3px solid var(--accent)' }}>
+        <div className="sb-sec-hdr" style={{ cursor: 'pointer' }} onClick={() => setCustomFormOpen(o => !o)}>
+          <span className="sb-lbl">Custom Exercise</span>
+          <span className="mchev" style={{ fontSize: '10px', color: 'var(--muted)' }}>{customFormOpen ? '▲' : '▼'}</span>
+        </div>
+
+        {customFormOpen && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+            <input
+              className="block-input"
+              style={{ width: '100%', boxSizing: 'border-box', fontSize: '11px', padding: '4px 6px' }}
+              type="text"
+              placeholder="Exercise name"
+              value={customForm.name}
+              onChange={e => setCustomForm(prev => ({ ...prev, name: e.target.value }))}
+              onKeyDown={e => e.key === 'Enter' && addCustomExercise()}
+            />
+            <select
+              style={{ width: '100%', background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '11px', padding: '4px 6px' }}
+              value={customForm.muscle}
+              onChange={e => setCustomForm(prev => ({ ...prev, muscle: e.target.value }))}
+            >
+              {Object.keys(MUSCLES).map(m => (
+                <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
+              ))}
+            </select>
+            <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>Equipment (optional)</div>
+            <div className="eq-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              {EQUIPMENT_OPTIONS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`eq-btn${customForm.eq.has(key) ? ' active' : ''}`}
+                  style={{ fontSize: '9px', padding: '3px 4px' }}
+                  onClick={() => toggleCustomEq(key)}
+                >
+                  <span className="eq-check">{customForm.eq.has(key) ? '✓' : ''}</span>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button
+              className="btn btn-ghost btn-sm"
+              style={{ width: '100%', marginTop: '2px' }}
+              onClick={addCustomExercise}
+            >
+              + Add Exercise
+            </button>
+          </div>
+        )}
+
+        {customExercises.length > 0 && (
+          <div className="exlist" style={{ marginTop: '8px' }}>
+            {customExercises.map((ex, i) => (
+              <div
+                key={i}
+                className="echip"
+                draggable
+                style={{ borderLeftColor: ex.color, cursor: 'grab' }}
+                title={ex.eq.length ? `Equipment: ${ex.eq.join(', ')}` : 'No equipment specified'}
+                onDragStart={() => onDragStart({ src: 'sb', muscle: ex.muscle, color: ex.color, customName: ex.n, customEquipment: ex.eq })}
+              >
+                <span className="cdot" style={{ background: ex.color, flexShrink: 0 }}></span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.3 }}>{ex.n}</div>
+                  <div className="eq-tags">
+                    {ex.eq.slice(0, 4).map(e => (
+                      <span key={e} className={`eq-tag ${EQ_CLASS[e] ?? 'other'}`}>{EQ_SHORT[e] ?? e.slice(0, 5)}</span>
+                    ))}
+                    {ex.eq.length === 0 && <span style={{ fontSize: '9px', color: 'var(--muted)' }}>Custom</span>}
+                  </div>
+                </div>
+                <button
+                  style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '12px', padding: '0 2px', lineHeight: 1 }}
+                  onClick={e => { e.stopPropagation(); removeCustomExercise(i); }}
+                  title="Remove"
+                >×</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Exercise Library */}

@@ -84,6 +84,8 @@ export interface DragData {
   ei?: number;
   color?: string;
   di?: number;
+  customName?: string;
+  customEquipment?: string[];
 }
 
 export interface AnalysisResult {

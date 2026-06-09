@@ -276,15 +276,26 @@ export function useProgramBuilder() {
     const data = dragDataRef.current;
     if (!data) return;
     if (data.src === 'sb') {
-      const md = MUSCLES[data.muscle!];
-      const ex = md.exercises[data.ei!];
-      const newEx: ProgramExercise = {
-        muscle: data.muscle!,
-        name: ex.n,
-        adapt: ex.eq.join(', '),
-        sets: GOALS[currentGoal].defSets(),
-        color: data.color!,
-      };
+      let newEx: ProgramExercise;
+      if (data.customName) {
+        newEx = {
+          muscle: data.muscle ?? 'custom',
+          name: data.customName,
+          adapt: (data.customEquipment ?? []).join(', '),
+          sets: GOALS[currentGoal].defSets(),
+          color: data.color ?? '#888888',
+        };
+      } else {
+        const md = MUSCLES[data.muscle!];
+        const ex = md.exercises[data.ei!];
+        newEx = {
+          muscle: data.muscle!,
+          name: ex.n,
+          adapt: ex.eq.join(', '),
+          sets: GOALS[currentGoal].defSets(),
+          color: data.color!,
+        };
+      }
       setDays(prev => {
         const next = prev.map(d => ({ ...d, exercises: [...d.exercises] }));
         next[tdi].exercises.push(newEx);
