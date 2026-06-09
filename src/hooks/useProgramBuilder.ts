@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { GOALS, MUSCLES, OVERLOAD_METHODS, SPLITS } from '../data/constants';
 import type {
   AnalysisResult,
@@ -138,6 +138,25 @@ function makeDaysFromSplit(splitKey: SplitKey): Day[] {
   return SPLITS[splitKey].days.map(label => ({ label, isRest: label === 'REST', exercises: [] }));
 }
 
+const STORAGE_KEY = 'empowher_program_builder_draft';
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft(data: object) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // quota exceeded or private browsing — silently ignore
+  }
+}
+
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 function autoRenameActiveDays(days: Day[], split: SplitKey): Day[] {
@@ -166,21 +185,34 @@ function autoRenameActiveDays(days: Day[], split: SplitKey): Day[] {
 }
 
 export function useProgramBuilder() {
-  const [programName, setProgramName] = useState('My Program');
-  const [currentProgramId, setCurrentProgramId] = useState<string | null>(null);
-  const [split, setSplitState] = useState<SplitKey>('upperlower');
-  const [goal, setGoalState] = useState<GoalKey>('hypertrophy');
-  const [blockWeeks, setBlockWeeks] = useState(4);
-  const [deloadOn, setDeloadOn] = useState(true);
-  const [deloadPct, setDeloadPct] = useState(50);
-  const [selectedMethods, setSelectedMethods] = useState<Set<OverloadMethodId>>(new Set(['load', 'reps']));
-  const [overloadPlan, setOverloadPlan] = useState<WeekPlan[]>([]);
-  const [overloadVisible, setOverloadVisible] = useState(false);
-  const [days, setDays] = useState<Day[]>(() => makeDaysFromSplit('upperlower'));
-  const [activeWeekView, setActiveWeekView] = useState(1);
+  const draft = useRef(loadDraft());
+  const d = draft.current;
+
+  const [programName, setProgramName] = useState<string>(d?.programName ?? 'My Program');
+  const [currentProgramId, setCurrentProgramId] = useState<string | null>(d?.currentProgramId ?? null);
+  const [split, setSplitState] = useState<SplitKey>(d?.split ?? 'upperlower');
+  const [goal, setGoalState] = useState<GoalKey>(d?.goal ?? 'hypertrophy');
+  const [blockWeeks, setBlockWeeks] = useState<number>(d?.blockWeeks ?? 4);
+  const [deloadOn, setDeloadOn] = useState<boolean>(d?.deloadOn ?? true);
+  const [deloadPct, setDeloadPct] = useState<number>(d?.deloadPct ?? 50);
+  const [selectedMethods, setSelectedMethods] = useState<Set<OverloadMethodId>>(
+    new Set<OverloadMethodId>(d?.selectedMethods ?? ['load', 'reps'])
+  );
+  const [overloadPlan, setOverloadPlan] = useState<WeekPlan[]>(d?.overloadPlan ?? []);
+  const [overloadVisible, setOverloadVisible] = useState<boolean>(d?.overloadVisible ?? false);
+  const [days, setDays] = useState<Day[]>(() => d?.days ?? makeDaysFromSplit('upperlower'));
+  const [activeWeekView, setActiveWeekView] = useState<number>(d?.activeWeekView ?? 1);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
   const dragDataRef = useRef<DragData | null>(null);
+
+  useEffect(() => {
+    saveDraft({
+      programName, currentProgramId, split, goal, blockWeeks, deloadOn, deloadPct,
+      selectedMethods: [...selectedMethods], overloadPlan, overloadVisible, days, activeWeekView,
+    });
+  }, [programName, currentProgramId, split, goal, blockWeeks, deloadOn, deloadPct,
+      selectedMethods, overloadPlan, overloadVisible, days, activeWeekView]);
 
   const totalWeeks = blockWeeks + (deloadOn ? 1 : 0);
   const isDeloadView = deloadOn && activeWeekView === totalWeeks;
@@ -453,6 +485,7 @@ export function useProgramBuilder() {
   }, []);
 
   const resetForNew = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
     setCurrentProgramId(null);
     setProgramName('My Program');
     setSplitState('upperlower');
