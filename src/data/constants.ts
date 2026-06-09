@@ -50,15 +50,69 @@ export const GOALS: Record<GoalKey, Goal> = {
 };
 
 export const MUSCLES: Record<string, Muscle> = {
-  chest:      { color: '#c47a7a', exercises: [{ n: 'Barbell Bench Press', a: 'Dumbbells, Smith Machine' }, { n: 'Incline DB Press', a: 'Barbell, Cable' }, { n: 'Cable Fly / Pec Deck', a: 'DB Fly, Band Fly' }, { n: 'Dips (Chest Lean)', a: 'Bench Dips, Machine Dip' }, { n: 'Push-Up Variations', a: 'Weighted, Incline, Band-Resisted' }] },
-  back:       { color: '#7bb5b2', exercises: [{ n: 'Barbell Row', a: 'DB Row, T-Bar Row' }, { n: 'Pull-Up / Weighted', a: 'Lat Pulldown, Assisted' }, { n: 'Lat Pulldown', a: 'Pull-Up, Cable High Row' }, { n: 'Seated Cable Row', a: 'DB Row, Machine Row' }, { n: 'Chest-Supported Row', a: 'Machine Row, Cable Row' }] },
-  shoulders:  { color: '#8fafd4', exercises: [{ n: 'Overhead Press (BB/DB)', a: 'Seated, Standing, Cable' }, { n: 'Lateral Raise', a: 'Cable, Band, Machine' }, { n: 'Face Pull / Rear Delt Fly', a: 'Band Pull-Apart, DB Fly' }, { n: 'Cable Lateral Raise', a: 'DB Lateral, Band' }, { n: 'Arnold Press', a: 'Standard DB, Machine Press' }] },
-  biceps:     { color: '#edd286', exercises: [{ n: 'Barbell Curl', a: 'EZ-Bar, DB Curl' }, { n: 'Incline DB Curl', a: 'Cable at Low Pulley' }, { n: 'Cable Curl', a: 'DB Curl, Band Curl' }, { n: 'Hammer Curl', a: 'Rope Curl, Cross-Body' }, { n: 'Preacher Curl', a: 'Spider Curl, Scott Bench' }] },
-  triceps:    { color: '#b09ac4', exercises: [{ n: 'Close-Grip Bench Press', a: 'DB, Smith Machine' }, { n: 'Overhead Tricep Ext.', a: 'EZ-Bar, Cable, DB' }, { n: 'Cable Pushdown', a: 'Band Pushdown, DB Kickback' }, { n: 'Skull Crusher', a: 'DB, Cable' }, { n: 'Dip Machine / Bench Dip', a: 'Parallel Dip, Band-Assisted' }] },
-  quads:      { color: '#c4b87a', exercises: [{ n: 'Back Squat', a: 'Goblet, Front Squat, Smith' }, { n: 'Leg Press', a: 'Squat, Hack Squat Machine' }, { n: 'Hack Squat', a: 'Barbell Hack, Leg Press' }, { n: 'Bulgarian Split Squat', a: 'Step-Up, Lunges' }, { n: 'Leg Extension', a: 'Sissy Squat, Band Terminal Ext.' }] },
-  hamstrings: { color: '#c4956a', exercises: [{ n: 'Romanian Deadlift (RDL)', a: 'DB RDL, Single-Leg RDL' }, { n: 'Leg Curl (Seated/Lying)', a: 'Nordic Curl, Band Curl' }, { n: 'Nordic Hamstring Curl', a: 'Stability Ball, Slider Curl' }, { n: 'Stiff-Leg Deadlift', a: 'DB, Single-Leg Variation' }, { n: 'Good Morning', a: 'Band, Cable Pull-Through' }] },
-  glutes:     { color: '#c47a9a', exercises: [{ n: 'Hip Thrust (Barbell)', a: 'DB Hip Thrust, Glute Bridge' }, { n: 'Cable Pull-Through', a: 'Band Pull-Through, KB Swing' }, { n: 'Glute Kickback (Cable)', a: 'Band Kickback, Machine' }, { n: 'Sumo Squat / Wide Stance', a: 'DB Sumo, Plie Squat' }, { n: 'Step-Up (Weighted)', a: 'Weighted Lunge, Box Step' }] },
-  core:       { color: '#7aab80', exercises: [{ n: 'Ab Wheel Rollout', a: 'Stability Ball, TRX Fallout' }, { n: 'Cable Crunch', a: 'Decline Crunch, Band' }, { n: 'Hanging Leg Raise', a: "Captain's Chair, Lying Raise" }, { n: 'Pallof Press', a: 'Band Pallof, Half-Kneeling' }, { n: 'Plank Variations', a: 'Dead Bug, RKC Plank' }] },
+  chest:      { color: '#c47a7a', exercises: [
+    { n: 'Barbell Bench Press',   eq: ['Barbell', 'Dumbbell', 'Smith Machine'] },
+    { n: 'Incline DB Press',      eq: ['Dumbbell', 'Barbell', 'Cable'] },
+    { n: 'Cable Fly / Pec Deck',  eq: ['Cable', 'Machine', 'Band'] },
+    { n: 'Dips (Chest Lean)',     eq: ['Bodyweight', 'Machine'] },
+    { n: 'Push-Up Variations',    eq: ['Bodyweight', 'Band'] },
+  ] },
+  back:       { color: '#7bb5b2', exercises: [
+    { n: 'Barbell Row',           eq: ['Barbell', 'Dumbbell'] },
+    { n: 'Pull-Up / Weighted',    eq: ['Bodyweight', 'Machine'] },
+    { n: 'Lat Pulldown',          eq: ['Cable', 'Machine'] },
+    { n: 'Seated Cable Row',      eq: ['Cable', 'Machine', 'Dumbbell'] },
+    { n: 'Chest-Supported Row',   eq: ['Dumbbell', 'Machine', 'Cable'] },
+  ] },
+  shoulders:  { color: '#8fafd4', exercises: [
+    { n: 'Overhead Press (BB/DB)', eq: ['Barbell', 'Dumbbell', 'Cable', 'Smith Machine'] },
+    { n: 'Lateral Raise',          eq: ['Dumbbell', 'Cable', 'Band', 'Machine'] },
+    { n: 'Face Pull / Rear Delt Fly', eq: ['Cable', 'Band', 'Dumbbell'] },
+    { n: 'Cable Lateral Raise',    eq: ['Cable', 'Band', 'Dumbbell'] },
+    { n: 'Arnold Press',           eq: ['Dumbbell', 'Machine'] },
+  ] },
+  biceps:     { color: '#edd286', exercises: [
+    { n: 'Barbell Curl',          eq: ['Barbell', 'Dumbbell'] },
+    { n: 'Incline DB Curl',       eq: ['Dumbbell', 'Cable'] },
+    { n: 'Cable Curl',            eq: ['Cable', 'Band', 'Dumbbell'] },
+    { n: 'Hammer Curl',           eq: ['Dumbbell', 'Cable'] },
+    { n: 'Preacher Curl',         eq: ['Barbell', 'Dumbbell', 'Machine'] },
+  ] },
+  triceps:    { color: '#b09ac4', exercises: [
+    { n: 'Close-Grip Bench Press', eq: ['Barbell', 'Dumbbell', 'Smith Machine'] },
+    { n: 'Overhead Tricep Ext.',   eq: ['Dumbbell', 'Barbell', 'Cable', 'Band'] },
+    { n: 'Cable Pushdown',         eq: ['Cable', 'Band'] },
+    { n: 'Skull Crusher',          eq: ['Barbell', 'Dumbbell', 'Cable'] },
+    { n: 'Dip Machine / Bench Dip', eq: ['Machine', 'Bodyweight'] },
+  ] },
+  quads:      { color: '#c4b87a', exercises: [
+    { n: 'Back Squat',            eq: ['Barbell', 'Smith Machine'] },
+    { n: 'Leg Press',             eq: ['Machine'] },
+    { n: 'Hack Squat',            eq: ['Machine', 'Barbell'] },
+    { n: 'Bulgarian Split Squat', eq: ['Dumbbell', 'Barbell', 'Bodyweight'] },
+    { n: 'Leg Extension',         eq: ['Machine', 'Band'] },
+  ] },
+  hamstrings: { color: '#c4956a', exercises: [
+    { n: 'Romanian Deadlift (RDL)', eq: ['Barbell', 'Dumbbell'] },
+    { n: 'Leg Curl (Seated/Lying)', eq: ['Machine', 'Band', 'Cable'] },
+    { n: 'Nordic Hamstring Curl',   eq: ['Bodyweight', 'Machine'] },
+    { n: 'Stiff-Leg Deadlift',      eq: ['Barbell', 'Dumbbell'] },
+    { n: 'Good Morning',            eq: ['Barbell', 'Band', 'Cable'] },
+  ] },
+  glutes:     { color: '#c47a9a', exercises: [
+    { n: 'Hip Thrust (Barbell)',   eq: ['Barbell', 'Dumbbell', 'Machine'] },
+    { n: 'Cable Pull-Through',    eq: ['Cable', 'Band', 'Kettlebell'] },
+    { n: 'Glute Kickback (Cable)', eq: ['Cable', 'Band', 'Machine'] },
+    { n: 'Sumo Squat / Wide Stance', eq: ['Barbell', 'Dumbbell', 'Kettlebell', 'Smith Machine'] },
+    { n: 'Step-Up (Weighted)',    eq: ['Dumbbell', 'Barbell', 'Bodyweight'] },
+  ] },
+  core:       { color: '#7aab80', exercises: [
+    { n: 'Ab Wheel Rollout',      eq: ['Bodyweight'] },
+    { n: 'Cable Crunch',          eq: ['Cable', 'Band'] },
+    { n: 'Hanging Leg Raise',     eq: ['Bodyweight', 'Machine'] },
+    { n: 'Pallof Press',          eq: ['Cable', 'Band'] },
+    { n: 'Plank Variations',      eq: ['Bodyweight'] },
+  ] },
 };
 
 export const SPLITS: Record<SplitKey, Split> = {

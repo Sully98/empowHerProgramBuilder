@@ -30,7 +30,8 @@ export interface Goal {
 
 export interface Exercise {
   n: string;
-  a: string;
+  a?: string;
+  eq: string[];
 }
 
 export interface Muscle {

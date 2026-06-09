@@ -254,7 +254,7 @@ export function useProgramBuilder() {
       exercises: (sp.tmpl[i] || []).map(e => ({
         muscle: e.m,
         name: MUSCLES[e.m].exercises[e.i].n,
-        adapt: MUSCLES[e.m].exercises[e.i].a,
+        adapt: MUSCLES[e.m].exercises[e.i].eq.join(', '),
         sets: g.defSets(),
         color: MUSCLES[e.m].color,
       })),
@@ -281,7 +281,7 @@ export function useProgramBuilder() {
       const newEx: ProgramExercise = {
         muscle: data.muscle!,
         name: ex.n,
-        adapt: ex.a,
+        adapt: ex.eq.join(', '),
         sets: GOALS[currentGoal].defSets(),
         color: data.color!,
       };

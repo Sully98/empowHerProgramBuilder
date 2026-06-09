@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { GOALS, MUSCLES, OVERLOAD_METHODS, SPLITS } from '../../data/constants';
 import type { DragData, GoalKey, OverloadMethodId, SplitKey } from '../../data/types';
 
@@ -25,11 +26,46 @@ const GOAL_COLORS: Record<GoalKey, string> = {
   endurance:   '#7aab80',
 };
 
+const EQUIPMENT_OPTIONS = [
+  { key: 'Barbell',      label: 'Barbell' },
+  { key: 'Dumbbell',     label: 'Dumbbell' },
+  { key: 'Cable',        label: 'Cable' },
+  { key: 'Machine',      label: 'Machine' },
+  { key: 'Band',         label: 'Bands' },
+  { key: 'Bodyweight',   label: 'Bodyweight' },
+  { key: 'Kettlebell',   label: 'Kettlebell' },
+  { key: 'Smith Machine', label: 'Smith' },
+];
+
+const EQ_CLASS: Record<string, string> = {
+  Barbell: 'bb', Dumbbell: 'db', Cable: 'cable', Machine: 'machine',
+  Band: 'band', Bodyweight: 'bw', Kettlebell: 'kb', 'Smith Machine': 'machine',
+};
+
+const EQ_SHORT: Record<string, string> = {
+  Barbell: 'BB', Dumbbell: 'DB', Machine: 'Mach', Bodyweight: 'BW',
+  Kettlebell: 'KB', Band: 'Band', Cable: 'Cable', 'Smith Machine': 'Smith',
+};
+
 export function Sidebar({
   split, goal, blockWeeks, deloadOn, deloadPct, selectedMethods,
   onSetSplit, onSetGoal, onBlockWeeksChange, onToggleDeload, onDeloadPctChange,
   onToggleMethod, onGenerateOverload, onDragStart,
 }: SidebarProps) {
+  const [availableEquipment, setAvailableEquipment] = useState<Set<string>>(
+    () => new Set(['Barbell', 'Dumbbell', 'Cable', 'Machine', 'Band', 'Bodyweight', 'Kettlebell'])
+  );
+
+  const toggleEquipment = (key: string) => {
+    setAvailableEquipment(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
+
+  const exerciseAvailable = (eq: string[]) => eq.length === 0 || eq.some(e => availableEquipment.has(e));
+
   const openAccordion = (el: HTMLElement) => {
     const hdr = el.closest('.mhdr') as HTMLElement | null;
     const list = hdr?.nextElementSibling as HTMLElement | null;
@@ -112,7 +148,10 @@ export function Sidebar({
 
       {/* Progressive Overload */}
       <div className="sb-sec">
-        <div className="sb-lbl">Progressive Overload</div>
+        <div className="sb-sec-hdr">
+          <span className="sb-lbl">Progressive Overload</span>
+          <span className="sb-step">04</span>
+        </div>
         <div className="ol-methods">
           {OVERLOAD_METHODS.map(m => {
             const sel = selectedMethods.has(m.id);
@@ -132,9 +171,36 @@ export function Sidebar({
         </button>
       </div>
 
+      {/* Available Equipment */}
+      <div className="sb-sec" style={{ background: 'rgba(123,181,178,.04)', borderLeft: '3px solid var(--accent)' }}>
+        <div className="sb-sec-hdr">
+          <span className="sb-lbl">Available Equipment</span>
+          <span className="sb-step">05</span>
+        </div>
+        <div className="eq-grid">
+          {EQUIPMENT_OPTIONS.map(({ key, label }) => {
+            const active = availableEquipment.has(key);
+            return (
+              <button
+                key={key}
+                type="button"
+                className={`eq-btn${active ? ' active' : ''}`}
+                onClick={() => toggleEquipment(key)}
+              >
+                <span className="eq-check">{active ? '✓' : ''}</span>
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Exercise Library */}
       <div className="sb-sec" style={{ flex: 1 }}>
-        <div className="sb-lbl">Exercise Library — Drag to Day</div>
+        <div className="sb-sec-hdr">
+          <span className="sb-lbl">Exercise Library — Drag to Day</span>
+          <span className="sb-step">06</span>
+        </div>
         <div className="mac">
           {Object.entries(MUSCLES).map(([key, muscle]) => (
             <div key={key}>
@@ -145,20 +211,36 @@ export function Sidebar({
                 <span className="mchev">▼</span>
               </div>
               <div className="exlist">
-                {muscle.exercises.map((ex, i) => (
-                  <div
-                    key={i}
-                    className="echip"
-                    draggable
-                    style={{ borderLeftColor: muscle.color }}
-                    title={`Equipment alternatives: ${ex.a}`}
-                    onDragStart={() => onDragStart({ src: 'sb', muscle: key, ei: i, color: muscle.color })}
-                  >
-                    <span className="cdot" style={{ background: muscle.color }}></span>
-                    <span>{ex.n}</span>
-                    <span className="cdrag">⠿</span>
-                  </div>
-                ))}
+                {muscle.exercises.map((ex, i) => {
+                  const avail = exerciseAvailable(ex.eq);
+                  return (
+                    <div
+                      key={i}
+                      className="echip"
+                      draggable={avail}
+                      style={{
+                        borderLeftColor: muscle.color,
+                        opacity: avail ? 1 : 0.3,
+                        cursor: avail ? 'grab' : 'not-allowed',
+                      }}
+                      title={avail ? `Equipment: ${ex.eq.join(', ')}` : 'Equipment not available for this exercise'}
+                      onDragStart={avail ? () => onDragStart({ src: 'sb', muscle: key, ei: i, color: muscle.color }) : undefined}
+                    >
+                      <span className="cdot" style={{ background: muscle.color, flexShrink: 0 }}></span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.3 }}>{ex.n}</div>
+                        <div className="eq-tags">
+                          {ex.eq.slice(0, 4).map(e => (
+                            <span key={e} className={`eq-tag ${EQ_CLASS[e] ?? 'other'}`}>
+                              {EQ_SHORT[e] ?? e.slice(0, 5)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <span className="cdrag">⠿</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}
