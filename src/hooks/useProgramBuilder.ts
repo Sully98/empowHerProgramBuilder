@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GOALS, MUSCLES, OVERLOAD_METHODS, SPLITS } from '../data/constants';
 import type {
   AnalysisResult,
@@ -206,11 +206,26 @@ export function useProgramBuilder() {
 
   const dragDataRef = useRef<DragData | null>(null);
 
-  useEffect(() => {
+  // useLayoutEffect runs synchronously after every render, before the browser paints.
+  // This guarantees localStorage is always current before any tab-switch or page unload
+  // can occur, eliminating the race where visibilitychange fired with stale ref state.
+  useLayoutEffect(() => {
     saveDraft({
       programName, currentProgramId, split, goal, blockWeeks, deloadOn, deloadPct,
       selectedMethods: [...selectedMethods], overloadPlan, overloadVisible, days, activeWeekView,
     });
+  }, [programName, currentProgramId, split, goal, blockWeeks, deloadOn, deloadPct,
+      selectedMethods, overloadPlan, overloadVisible, days, activeWeekView]);
+
+  // Belt-and-suspenders: also flush on beforeunload in case the very first render
+  // hasn't saved yet or the browser bypasses normal lifecycle on hard close.
+  useEffect(() => {
+    const flush = () => saveDraft({
+      programName, currentProgramId, split, goal, blockWeeks, deloadOn, deloadPct,
+      selectedMethods: [...selectedMethods], overloadPlan, overloadVisible, days, activeWeekView,
+    });
+    window.addEventListener('beforeunload', flush);
+    return () => window.removeEventListener('beforeunload', flush);
   }, [programName, currentProgramId, split, goal, blockWeeks, deloadOn, deloadPct,
       selectedMethods, overloadPlan, overloadVisible, days, activeWeekView]);
 

@@ -16,10 +16,21 @@ export default function App() {
   const { user, loading: authLoading, signIn, signUp, signOut } = useAuth();
   const { profile, profileLoading, setRole } = useProfile(user);
 
-  const [view, setView] = useState<View>('landing');
+  const [view, setViewRaw] = useState<View>('landing');
+  const setView = useCallback((v: View) => {
+    setViewRaw(v);
+    // Persist which view is active so a dev-mode HMR reload can return the user here
+    if (v === 'app' || v === 'dashboard') {
+      sessionStorage.setItem('empowher_last_view', v);
+    } else {
+      sessionStorage.removeItem('empowher_last_view');
+    }
+  }, []);
   const [loadedProgram, setLoadedProgram] = useState<SavedProgram | null>(null);
   const [viewForStudent, setViewForStudent] = useState<Profile | null>(null);
   const [quizInitial, setQuizInitial] = useState<{ goal: GoalKey; split: SplitKey } | null>(null);
+  // Once the app shell has mounted, keep it in the DOM (hidden) so exercises are never lost on navigation
+  const [appShellEverOpened, setAppShellEverOpened] = useState(false);
 
   const postAuthDest = useRef<'dashboard' | 'app'>('dashboard');
   const pendingQuiz = useRef<{ goal: GoalKey; split: SplitKey } | null>(null);
@@ -70,6 +81,24 @@ export default function App() {
     }
   }, [user, authLoading, view]);
 
+  // After a dev-mode HMR page reload, restore the user to wherever they were
+  const viewRestoredRef = useRef(false);
+  useEffect(() => {
+    if (viewRestoredRef.current) return;
+    if (authLoading || profileLoading) return;
+    if (!user || !profile?.role) return;
+    const saved = sessionStorage.getItem('empowher_last_view') as View | null;
+    if (saved === 'app' || saved === 'dashboard') {
+      viewRestoredRef.current = true;
+      if (saved === 'app') {
+        setAppShellEverOpened(true);
+        setViewRaw('app');
+      } else {
+        setViewRaw('dashboard');
+      }
+    }
+  }, [authLoading, profileLoading, user, profile?.role]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const goToAuth = (dest: 'dashboard' | 'app' = 'dashboard') => {
     postAuthDest.current = dest;
     setView('auth');
@@ -82,6 +111,7 @@ export default function App() {
     setQuizInitial(null);
     setLoadedProgram(null);
     setViewForStudent(null);
+    setAppShellEverOpened(true);
     setView('app');
     window.scrollTo(0, 0);
   };
@@ -93,6 +123,7 @@ export default function App() {
     pendingQuiz.current = null;
     setLoadedProgram(null);
     setViewForStudent(null);
+    setAppShellEverOpened(true);
     setView('app');
     window.scrollTo(0, 0);
   };
@@ -103,6 +134,7 @@ export default function App() {
   const handleLoadProgram = (p: SavedProgram) => {
     setLoadedProgram(p);
     setViewForStudent(null);
+    setAppShellEverOpened(true);
     setView('app');
     window.scrollTo(0, 0);
   };
@@ -111,6 +143,7 @@ export default function App() {
   const handleLoadProgramForStudent = (p: SavedProgram, student: Profile) => {
     setLoadedProgram(p.id ? p : null);
     setViewForStudent(student);
+    setAppShellEverOpened(true);
     setView('app');
     window.scrollTo(0, 0);
   };
@@ -133,19 +166,25 @@ export default function App() {
 
   const isLoading = authLoading || (!!user && profileLoading);
 
-  if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg)' }}>
-        <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--muted)' }}>
-          Loading…
-        </div>
-      </div>
-    );
-  }
+  // Keep a stable user reference for AppShell so that a brief null emitted by
+  // Supabase's onAuthStateChange during token refresh doesn't unmount it and
+  // wipe in-memory exercise state.
+  const appShellUserRef = useRef<typeof user>(null);
+  if (user) appShellUserRef.current = user;
+  const appShellUser = appShellUserRef.current;
 
   return (
     <>
-      {view === 'landing' && (
+      {/* Loading overlay — rendered on top so nothing underneath unmounts */}
+      {isLoading && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
+          <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+            Loading…
+          </div>
+        </div>
+      )}
+
+      {!isLoading && view === 'landing' && (
         <LandingPage
           user={user}
           onOpenApp={user ? openDashboard : () => goToAuth('dashboard')}
@@ -156,7 +195,7 @@ export default function App() {
         />
       )}
 
-      {view === 'auth' && (
+      {!isLoading && view === 'auth' && (
         <AuthPage
           onSignIn={signIn}
           onSignUp={signUp}
@@ -164,11 +203,11 @@ export default function App() {
         />
       )}
 
-      {view === 'role-select' && (
+      {!isLoading && view === 'role-select' && (
         <RoleSelectPage onSelect={handleRoleSelect} />
       )}
 
-      {view === 'dashboard' && user && profile && (
+      {!isLoading && view === 'dashboard' && user && profile && (
         <DashboardPage
           user={user}
           profile={profile}
@@ -181,20 +220,24 @@ export default function App() {
         />
       )}
 
-      {view === 'app' && user && (
-        <AppShell
-          key={`${loadedProgram?.id ?? 'new'}-${viewForStudent?.id ?? 'self'}`}
-          user={user}
-          userProfile={profile}
-          loadedProgram={loadedProgram}
-          viewForStudent={viewForStudent}
-          initialGoal={quizInitial?.goal}
-          initialSplit={quizInitial?.split}
-          onCloseApp={openDashboard}
-          onGoToDashboard={openDashboard}
-          onGetWeeklyTips={scrollToSignup}
-          showToast={showToast}
-        />
+      {/* AppShell stays mounted once opened — uses stable user ref so a brief
+          null from Supabase token refresh doesn't cause an unmount/remount */}
+      {appShellEverOpened && appShellUser && (
+        <div style={{ display: view === 'app' ? undefined : 'none' }}>
+          <AppShell
+            key={`${loadedProgram?.id ?? 'new'}-${viewForStudent?.id ?? 'self'}`}
+            user={appShellUser}
+            userProfile={profile}
+            loadedProgram={loadedProgram}
+            viewForStudent={viewForStudent}
+            initialGoal={quizInitial?.goal}
+            initialSplit={quizInitial?.split}
+            onCloseApp={openDashboard}
+            onGoToDashboard={openDashboard}
+            onGetWeeklyTips={scrollToSignup}
+            showToast={showToast}
+          />
+        </div>
       )}
 
       <EmailPopup showToast={showToast} />

@@ -159,3 +159,11 @@ export const SPLITS: Record<SplitKey, Split> = {
 };
 
 export const DOW = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+// Tell Vite this module can be hot-updated in place.
+// Without this, any save to this file (e.g. VS Code auto-save on tab switch)
+// causes a full page reload because Vite can't propagate HMR through named
+// non-component exports.
+if (import.meta.hot) {
+  import.meta.hot.accept();
+}
