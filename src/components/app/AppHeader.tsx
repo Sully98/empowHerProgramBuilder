@@ -9,12 +9,13 @@ interface AppHeaderProps {
   onLoadTemplate: () => void;
   onAnalyze: () => void;
   onPrint: () => void;
+  onExportCsv: () => void;
   onSave: () => void;
   onGoToDashboard: () => void;
 }
 
 export function AppHeader({
-  user, isSaving, title, onClose, onClear, onLoadTemplate, onAnalyze, onPrint, onSave, onGoToDashboard,
+  user, isSaving, title, onClose, onClear, onLoadTemplate, onAnalyze, onPrint, onExportCsv, onSave, onGoToDashboard,
 }: AppHeaderProps) {
   return (
     <header className="app-hdr">
@@ -34,6 +35,7 @@ export function AppHeader({
         <button className="btn btn-ghost btn-sm" onClick={onSave} disabled={isSaving}>
           {isSaving ? 'Saving…' : user ? '💾 Save' : '💾 Save (Login)'}
         </button>
+        <button className="btn btn-ghost btn-sm" onClick={onExportCsv}>↓ XLSX</button>
         <button className="btn btn-primary btn-sm" onClick={onPrint}>⬇ Print PDF</button>
       </div>
     </header>

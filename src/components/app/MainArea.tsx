@@ -3,7 +3,6 @@ import { GOALS, SPLITS } from '../../data/constants';
 import type { AnalysisResult, Day, DragData, GoalKey, OverloadMethodId, SplitKey, WeekPlan, WorkoutLog, WorkoutLogKey } from '../../data/types';
 import { DayCard } from './DayCard';
 import { OverloadSummary } from './OverloadSummary';
-import { PrintProgression } from './PrintProgression';
 import { SuggestionPanel } from './SuggestionPanel';
 import { VolStrip } from './VolStrip';
 import { WeekTabs } from './WeekTabs';
@@ -143,12 +142,6 @@ export function MainArea({
         ))}
       </div>
 
-      <PrintProgression
-        overloadPlan={overloadPlan}
-        days={days}
-        selectedMethods={selectedMethods}
-        deloadPct={deloadPct}
-      />
     </main>
   );
 }

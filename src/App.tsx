@@ -3,6 +3,7 @@ import { AuthPage } from './components/auth/AuthPage';
 import { RoleSelectPage } from './components/auth/RoleSelectPage';
 import { DashboardPage } from './components/dashboard/DashboardPage';
 import { AppShell } from './components/app/AppShell';
+import { WebsitePage } from './components/landing/WebsitePage';
 import { LandingPage } from './components/landing/LandingPage';
 import { EmailPopup } from './components/shared/EmailPopup';
 import { Toast } from './components/shared/Toast';
@@ -10,13 +11,13 @@ import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
 import type { GoalKey, Profile, SavedProgram, SplitKey } from './data/types';
 
-type View = 'landing' | 'auth' | 'role-select' | 'dashboard' | 'app';
+type View = 'website' | 'landing' | 'auth' | 'role-select' | 'dashboard' | 'app';
 
 export default function App() {
   const { user, loading: authLoading, signIn, signUp, signOut } = useAuth();
   const { profile, profileLoading, setRole } = useProfile(user);
 
-  const [view, setViewRaw] = useState<View>('landing');
+  const [view, setViewRaw] = useState<View>('website');
   const setView = useCallback((v: View) => {
     setViewRaw(v);
     // Persist which view is active so a dev-mode HMR reload can return the user here
@@ -77,7 +78,7 @@ export default function App() {
   // Guard: if no user and on a protected view, redirect
   useEffect(() => {
     if (!authLoading && !user && (view === 'dashboard' || view === 'app' || view === 'role-select')) {
-      setView('landing');
+      setView('landing');  // back to program builder landing, not website
     }
   }, [user, authLoading, view]);
 
@@ -128,6 +129,7 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  const openWebsite   = () => { setQuizInitial(null); setView('website');   window.scrollTo(0, 0); };
   const openLanding   = () => { setQuizInitial(null); setView('landing');   window.scrollTo(0, 0); };
   const openDashboard = () => { setQuizInitial(null); setView('dashboard'); window.scrollTo(0, 0); };
 
@@ -150,7 +152,7 @@ export default function App() {
 
   const handleSignOut = async () => {
     await signOut();
-    setView('landing');
+    setView('website');
   };
 
   const handleRoleSelect = async (role: 'coach' | 'user') => {
@@ -184,6 +186,12 @@ export default function App() {
         </div>
       )}
 
+      {!isLoading && view === 'website' && (
+        <WebsitePage
+          onOpenProgramBuilder={openLanding}
+        />
+      )}
+
       {!isLoading && view === 'landing' && (
         <LandingPage
           user={user}
@@ -215,7 +223,7 @@ export default function App() {
           onOpenAppWithGoal={openAppWithGoal}
           onLoadProgram={handleLoadProgram}
           onLoadProgramForStudent={handleLoadProgramForStudent}
-          onGoToLanding={openLanding}
+          onGoToLanding={openWebsite}
           onSignOut={handleSignOut}
         />
       )}
