@@ -175,6 +175,8 @@
   max-width: 440px;
   margin-bottom: 44px;
 }
+.ln-hero-sub p { margin: 0 0 14px; }
+.ln-hero-sub p:last-child { margin-bottom: 0; }
 .ln-hero-sub strong { color: var(--warm); font-weight: 400; }
 .ln-hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
 
