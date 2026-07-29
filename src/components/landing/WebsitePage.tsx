@@ -236,7 +236,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
             <div className="ln-prog-card">
               <span className="ln-prog-tag ln-tag-full">Full Coaching</span>
               <div className="ln-prog-name">Online Coaching</div>
-              <div className="ln-prog-price">$400 <sub>$67/wk</sub></div>
+              <div className="ln-prog-price">$300 <sub>$75/wk</sub></div>
               <div className="ln-prog-tagline">A real coach who knows you, built around your life.</div>
               <p className="ln-prog-desc">Custom programming, weekly check-ins, direct access to us. For women who want more than a plan. A coach who adjusts as you grow and is genuinely invested in your results.</p>
               <div className="ln-prog-includes">
