@@ -4,17 +4,6 @@ interface WebsitePageProps {
   onOpenProgramBuilder: () => void;
 }
 
-const TICKER_ITEMS = [
-  'Stronger. Not smaller.',
-  'Form first · always',
-  'Real strength for real women',
-  'No pseudoscience · no BS',
-  'Personalized · evidence-based',
-  "Women's health advocates",
-  'Geneva + Online worldwide',
-  'From intimidated to confident',
-  'Not toned · strong',
-];
 
 export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
