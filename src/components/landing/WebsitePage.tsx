@@ -98,17 +98,6 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
         </div>
       </section>
 
-      {/* ── TICKER ── */}
-      <div className="ln-ticker">
-        <div className="ln-ticker-track">
-          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
-            <div className="ln-ticker-item" key={i}>
-              {item} <div className="ln-ticker-dot" />
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* ── IS THIS YOU ── */}
       <section className="ln-section alt">
         <div className="ln-inner">
@@ -286,7 +275,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
               </p>
             </div>
             <div className="ln-builder-btns">
-              <button className="ln-btn ln-btn-teal" onClick={onOpenProgramBuilder}>Open Program Builder →</button>
+              <button className="ln-btn ln-btn-teal" onClick={() => window.open('/program-builder', '_blank')}>Open Program Builder →</button>
             </div>
           </div>
         </div>
