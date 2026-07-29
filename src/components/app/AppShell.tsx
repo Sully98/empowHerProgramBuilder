@@ -10,6 +10,7 @@ import { AppHeader } from './AppHeader';
 import { AppSocialBanner } from './AppSocialBanner';
 import { MainArea } from './MainArea';
 import { Sidebar } from './Sidebar';
+import { Walkthrough } from './Walkthrough';
 import { GoalQuiz } from '../landing/GoalQuiz';
 
 interface AppShellProps {
@@ -42,6 +43,18 @@ export function AppShell({
   const [isSaving, setIsSaving] = useState(false);
   const [weekLogs, setWeekLogs] = useState<Record<WorkoutLogKey, WorkoutLog>>({});
   const [showQuiz, setShowQuiz] = useState(false);
+
+  const walkthroughKey = `empowher_walkthrough_seen_${user.id}`;
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  useEffect(() => {
+    if (!viewForStudent && !localStorage.getItem(walkthroughKey)) {
+      setShowWalkthrough(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const finishWalkthrough = () => {
+    setShowWalkthrough(false);
+    localStorage.setItem(walkthroughKey, '1');
+  };
 
   // Load program when it changes
   useEffect(() => {
@@ -602,7 +615,10 @@ export function AppShell({
         onGoToDashboard={onGoToDashboard}
         onGoToWebsite={onGoToWebsite}
         onTakeQuiz={() => setShowQuiz(true)}
+        onWalkthrough={() => setShowWalkthrough(true)}
       />
+
+      {showWalkthrough && <Walkthrough onFinish={finishWalkthrough} />}
 
       {showQuiz && (
         <div className="quiz-modal-overlay" onClick={() => setShowQuiz(false)}>

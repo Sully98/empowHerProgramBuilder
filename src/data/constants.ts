@@ -51,7 +51,7 @@ export const GOALS: Record<GoalKey, Goal> = {
 
 export const MUSCLES: Record<string, Muscle> = {
   chest:      { color: '#c47a7a', exercises: [
-    { n: 'Barbell Bench Press',   eq: ['Barbell', 'Dumbbell', 'Smith Machine'] },
+    { n: 'Bench Press',           eq: ['Barbell', 'Dumbbell', 'Smith Machine'] },
     { n: 'Incline DB Press',      eq: ['Dumbbell', 'Barbell', 'Cable'] },
     { n: 'Cable Fly / Pec Deck',  eq: ['Cable', 'Machine', 'Band'] },
     { n: 'Dips (Chest Lean)',     eq: ['Bodyweight', 'Machine'] },

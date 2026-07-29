@@ -14,10 +14,11 @@ interface AppHeaderProps {
   onGoToDashboard: () => void;
   onGoToWebsite: () => void;
   onTakeQuiz: () => void;
+  onWalkthrough: () => void;
 }
 
 export function AppHeader({
-  user, isSaving, title, onClose, onClear, onLoadTemplate, onAnalyze, onPrint, onExportCsv, onSave, onGoToDashboard, onGoToWebsite, onTakeQuiz,
+  user, isSaving, title, onClose, onClear, onLoadTemplate, onAnalyze, onPrint, onExportCsv, onSave, onGoToDashboard, onGoToWebsite, onTakeQuiz, onWalkthrough,
 }: AppHeaderProps) {
   return (
     <header className="app-hdr">
@@ -37,15 +38,16 @@ export function AppHeader({
         {user && (
           <button className="btn btn-ghost btn-sm" onClick={onGoToDashboard}>Dashboard</button>
         )}
+        <button className="btn btn-ghost btn-sm" onClick={onWalkthrough}>? Walkthrough</button>
         <button className="btn btn-ghost btn-sm" onClick={onTakeQuiz}>Take the Quiz →</button>
         <button className="btn btn-ghost btn-sm" onClick={onClear}>Clear</button>
         <button className="btn btn-ghost btn-sm" onClick={onLoadTemplate}>Load Template</button>
-        <button className="btn btn-ghost btn-sm" onClick={onAnalyze}>Analyze</button>
-        <button className="btn btn-ghost btn-sm" onClick={onSave} disabled={isSaving}>
+        <button className="btn btn-ghost btn-sm" id="hdr-analyze" onClick={onAnalyze}>Analyze</button>
+        <button className="btn btn-ghost btn-sm" id="hdr-save" onClick={onSave} disabled={isSaving}>
           {isSaving ? 'Saving…' : user ? '💾 Save' : '💾 Save (Login)'}
         </button>
-        <button className="btn btn-ghost btn-sm" onClick={onExportCsv}>↓ XLSX</button>
-        <button className="btn btn-primary btn-sm" onClick={onPrint}>⬇ Print PDF</button>
+        <button className="btn btn-ghost btn-sm" id="hdr-export" onClick={onExportCsv}>↓ XLSX</button>
+        <button className="btn btn-primary btn-sm" id="hdr-print" onClick={onPrint}>⬇ Print PDF</button>
       </div>
     </header>
   );

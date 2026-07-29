@@ -26,6 +26,13 @@ interface SidebarProps {
   onDragStart: (data: DragData) => void;
 }
 
+const SPLIT_INFO: Record<SplitKey, string> = {
+  upperlower: 'Alternate upper-body and lower-body days. Hits every muscle twice a week with solid recovery — a strong all-around choice for most goals.',
+  fullbody: 'Train your entire body each session. Works well on 2–3 days a week and keeps training frequency high for every muscle group.',
+  bro: 'One muscle group per day — chest, back, shoulders, legs, arms. High volume per session, but each muscle is only trained once a week.',
+  everyother: 'A workout day followed by a rest day, on repeat, instead of a fixed weekly schedule. Flexible if your week is inconsistent.',
+};
+
 const GOAL_COLORS: Record<GoalKey, string> = {
   hypertrophy: 'var(--accent)',
   strength:    'var(--gold)',
@@ -139,28 +146,33 @@ export function Sidebar({
     <aside className="sb">
 
       {/* Training Split */}
-      <div className="sb-sec">
+      <div className="sb-sec" id="sb-split">
         <div className="sb-lbl">Training Split</div>
         <div className="split-grid">
           {(Object.keys(SPLITS) as SplitKey[]).map(s => {
             const labels: Record<SplitKey, string> = { upperlower: 'Upper/\nLower', fullbody: 'Full\nBody', bro: 'Bro\nSplit', everyother: 'Every\nOther' };
             return (
-              <button
-                key={s}
-                id={`sp-${s}`}
-                className={`split-btn${split === s ? ' active' : ''}`}
-                onClick={() => onSetSplit(s)}
-                style={{ whiteSpace: 'pre-line' }}
-              >
-                {labels[s]}
-              </button>
+              <div key={s} className="split-btn-wrap">
+                <button
+                  id={`sp-${s}`}
+                  className={`split-btn${split === s ? ' active' : ''}`}
+                  onClick={() => onSetSplit(s)}
+                  style={{ whiteSpace: 'pre-line' }}
+                >
+                  {labels[s]}
+                </button>
+                <div className="split-tip">
+                  <div className="split-tip-title">{SPLITS[s].label}</div>
+                  {SPLIT_INFO[s]}
+                </div>
+              </div>
             );
           })}
         </div>
       </div>
 
       {/* Training Goal */}
-      <div className="sb-sec">
+      <div className="sb-sec" id="sb-goal">
         <div className="sb-lbl">Training Goal</div>
         <div className="goal-mini">
           {(Object.keys(GOALS) as GoalKey[]).map(g => (
@@ -178,7 +190,7 @@ export function Sidebar({
       </div>
 
       {/* Block Length */}
-      <div className="sb-sec">
+      <div className="sb-sec" id="sb-block">
         <div className="sb-lbl">Block Length + Deload</div>
         <div className="block-row">
           <span className="block-lbl">Training Weeks</span>
@@ -207,7 +219,7 @@ export function Sidebar({
       </div>
 
       {/* Progressive Overload */}
-      <div className="sb-sec">
+      <div className="sb-sec" id="sb-overload">
         <div className="sb-sec-hdr">
           <span className="sb-lbl">Progressive Overload</span>
           <span className="sb-step">04</span>
@@ -232,7 +244,7 @@ export function Sidebar({
       </div>
 
       {/* Available Equipment */}
-      <div className="sb-sec" style={{ background: 'rgba(123,181,178,.04)', borderLeft: '3px solid var(--accent)' }}>
+      <div className="sb-sec" id="sb-equipment" style={{ background: 'rgba(123,181,178,.04)', borderLeft: '3px solid var(--accent)' }}>
         <div className="sb-sec-hdr">
           <span className="sb-lbl">Available Equipment</span>
           <span className="sb-step">05</span>
@@ -256,7 +268,7 @@ export function Sidebar({
       </div>
 
       {/* Exercise Library */}
-      <div className="sb-sec" style={{ flex: 1 }}>
+      <div className="sb-sec" id="sb-exlibrary" style={{ flex: 1 }}>
         <div className="sb-sec-hdr">
           <span className="sb-lbl">Exercise Library — Drag to Day</span>
           <span className="sb-step">06</span>
