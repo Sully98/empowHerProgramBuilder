@@ -203,7 +203,6 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
 
           <div className="ln-prog-grid">
             <div className="ln-prog-card">
-              <div className="ln-prog-card-bg">$0</div>
               <span className="ln-prog-tag ln-tag-free">Free</span>
               <div className="ln-prog-name">The Guide</div>
               <div className="ln-prog-price">$0</div>
@@ -220,7 +219,6 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
             </div>
 
             <div className="ln-prog-card featured">
-              <div className="ln-prog-card-bg">FF</div>
               <span className="ln-prog-tag ln-tag-pop">Most popular</span>
               <div className="ln-prog-name">Form Foundations</div>
               <div className="ln-prog-price">$150 <sub>$25/wk</sub></div>
@@ -236,7 +234,6 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
             </div>
 
             <div className="ln-prog-card">
-              <div className="ln-prog-card-bg">OC</div>
               <span className="ln-prog-tag ln-tag-full">Full Coaching</span>
               <div className="ln-prog-name">Online Coaching</div>
               <div className="ln-prog-price">$400 <sub>$67/wk</sub></div>
