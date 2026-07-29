@@ -112,12 +112,19 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .mission-quote cite { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
 
 /* HOW GRID */
-.how-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 28px; }
-.how-card { background: var(--card); border: 1px solid var(--border); padding: 24px; transition: border-color .15s; }
+.how-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px; margin-top: 28px; }
+.how-card { background: var(--card); border: 1px solid var(--border); padding: 24px 16px; transition: border-color .15s; min-width: 0; }
 .how-card:hover { border-color: var(--accent); }
 .how-n { font-family: 'Cormorant Garamond', serif; font-size: 44px; color: var(--border2); line-height: 1; margin-bottom: 12px; font-weight: 400; }
 .how-t { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); margin-bottom: 6px; }
 .how-d { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+@media (max-width: 900px) {
+  .how-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 560px) {
+  .how-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
 /* RESEARCH */
 .goal-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0; }

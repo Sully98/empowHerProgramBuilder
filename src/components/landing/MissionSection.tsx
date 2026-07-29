@@ -31,10 +31,6 @@ export function MissionSection({ sectionRef }: MissionSectionProps) {
         </div>
       </div>
 
-      <div className="mission-quote">
-        <blockquote>"You don't need to be an athlete to train like one. You just need a plan, the right information, and the confidence to start."</blockquote>
-        <cite>— Melody, EmpowHER Strength LLC</cite>
-      </div>
     </div>
   );
 }

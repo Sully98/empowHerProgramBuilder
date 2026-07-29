@@ -24,10 +24,16 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
 
       {/* ── NAV ── */}
       <nav className="ln-nav">
-        <div className="ln-nav-logo">Empower<em>HER</em> Strength</div>
+        <button
+          className="ln-nav-logo"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
+          Empower<em>HER</em> Strength
+        </button>
         <div className="ln-nav-links">
           <a href="#about">About</a>
-          <a href="#programs">Work With Me</a>
+          <a href="#programs">Work with us</a>
           <a href="#guide">Free Guide</a>
           <button className="ln-nav-builder" onClick={onOpenProgramBuilder}>Program Builder</button>
           <button className="ln-nav-pill" onClick={() => scrollTo('programs')}>Start Here →</button>
@@ -57,7 +63,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
             Beginner-friendly programs built around your body and your goals, real women's health education, and coaches who actually explain the why behind everything.
           </p>
           <p style={{ fontFamily: 'var(--serif)', fontSize: '18px', fontStyle: 'italic', fontWeight: 300, color: 'var(--faint)', lineHeight: 1.6, maxWidth: '440px', marginBottom: '32px' }}>
-            "I had to figure it out on my own. You shouldn't have to."
+            "We had to figure it out on our own. You shouldn't have to."
           </p>
           <div className="ln-hero-btns">
             <button className="ln-btn ln-btn-teal" onClick={() => scrollTo('programs')}>Start Here →</button>
@@ -165,21 +171,21 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
               <div className="ln-pillar">
                 <div className="ln-pillar-num">01</div>
                 <div>
-                  <div className="ln-pillar-title">StrongHER</div>
+                  <div className="ln-pillar-title">Strong<span className="hl">HER</span></div>
                   <div className="ln-pillar-body">Progressive, structured lifting built around your specific goals. Not a generic plan. A real program that gets harder in the right ways so you are always moving forward and always know exactly why.</div>
                 </div>
               </div>
               <div className="ln-pillar">
                 <div className="ln-pillar-num">02</div>
                 <div>
-                  <div className="ln-pillar-title">SmartHER</div>
+                  <div className="ln-pillar-title">Smart<span className="hl">HER</span></div>
                   <div className="ln-pillar-body">We explain everything. Every exercise, every rep range, every reason. We stay on top of the latest research, debunk the misinformation, and keep you informed about women's health and fitness.</div>
                 </div>
               </div>
               <div className="ln-pillar">
                 <div className="ln-pillar-num">03</div>
                 <div>
-                  <div className="ln-pillar-title">BoldHER</div>
+                  <div className="ln-pillar-title">Bold<span className="hl">HER</span></div>
                   <div className="ln-pillar-body">When you know you are moving correctly, everything changes. The gym stops being intimidating. You stop second-guessing yourself. Lifting becomes something you actually look forward to.</div>
                 </div>
               </div>
@@ -392,7 +398,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
                 <div className="ln-eyebrow-text">Free resource</div>
               </div>
               <div className="ln-section-h gold" style={{ marginBottom: '20px' }}>
-                I had to figure it<br />out on my own. <em>You don't.</em>
+                We had to figure it<br />out on our own. <em>You don't.</em>
               </div>
               <p style={{ fontSize: '15px', fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, marginBottom: '14px' }}>
                 26 pages of everything I wish someone had told me when I started. Myths debunked. Form basics. Progressive overload explained. How to structure your week and actually understand what you are doing.
@@ -447,7 +453,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
         <div className="ln-footer-brand">Empower<em>HER</em> Strength LLC</div>
         <div className="ln-footer-links">
           <a href="#about">About</a>
-          <a href="#programs">Work With Me</a>
+          <a href="#programs">Work with us</a>
           <a href="#guide">Free Guide</a>
           <button onClick={onOpenProgramBuilder}>Program Builder</button>
           <a href="mailto:melody@empowherstrength.com">Contact</a>

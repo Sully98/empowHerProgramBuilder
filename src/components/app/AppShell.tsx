@@ -10,6 +10,7 @@ import { AppHeader } from './AppHeader';
 import { AppSocialBanner } from './AppSocialBanner';
 import { MainArea } from './MainArea';
 import { Sidebar } from './Sidebar';
+import { GoalQuiz } from '../landing/GoalQuiz';
 
 interface AppShellProps {
   user: User;
@@ -20,6 +21,7 @@ interface AppShellProps {
   initialSplit?: SplitKey;
   onCloseApp: () => void;
   onGoToDashboard: () => void;
+  onGoToWebsite: () => void;
   onGetWeeklyTips: () => void;
   showToast: (msg: string) => void;
 }
@@ -27,7 +29,7 @@ interface AppShellProps {
 export function AppShell({
   user, userProfile, loadedProgram, viewForStudent,
   initialGoal, initialSplit,
-  onCloseApp, onGoToDashboard, onGetWeeklyTips, showToast,
+  onCloseApp, onGoToDashboard, onGoToWebsite, onGetWeeklyTips, showToast,
 }: AppShellProps) {
   const pb = useProgramBuilder();
 
@@ -39,6 +41,7 @@ export function AppShell({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [isSaving, setIsSaving] = useState(false);
   const [weekLogs, setWeekLogs] = useState<Record<WorkoutLogKey, WorkoutLog>>({});
+  const [showQuiz, setShowQuiz] = useState(false);
 
   // Load program when it changes
   useEffect(() => {
@@ -597,7 +600,31 @@ export function AppShell({
         onExportCsv={handleExportXlsx}
         onSave={handleSave}
         onGoToDashboard={onGoToDashboard}
+        onGoToWebsite={onGoToWebsite}
+        onTakeQuiz={() => setShowQuiz(true)}
       />
+
+      {showQuiz && (
+        <div className="quiz-modal-overlay" onClick={() => setShowQuiz(false)}>
+          <div className="quiz-modal" onClick={e => e.stopPropagation()}>
+            <div className="quiz-modal-hdr">
+              <div className="quiz-modal-title">Find Your Goal</div>
+              <button className="quiz-modal-close" onClick={() => setShowQuiz(false)}>✕</button>
+            </div>
+            <div className="quiz-wrap">
+              <GoalQuiz
+                onResult={(goal, split) => {
+                  setShowQuiz(false);
+                  pb.setGoal(goal);
+                  pb.setSplit(split);
+                }}
+                ctaLabel="Use This Goal →"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <AppSocialBanner onGetWeeklyTips={onGetWeeklyTips} />
 
       <div className="app-body">

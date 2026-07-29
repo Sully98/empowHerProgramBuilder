@@ -13,25 +13,49 @@ import type { GoalKey, Profile, SavedProgram, SplitKey } from './data/types';
 
 type View = 'website' | 'landing' | 'auth' | 'role-select' | 'dashboard' | 'app';
 
+const VIEW_PATHS: Record<View, string> = {
+  website: '/',
+  landing: '/program-builder',
+  auth: '/auth',
+  'role-select': '/role-select',
+  dashboard: '/dashboard',
+  app: '/app',
+};
+const PATH_VIEWS: Record<string, View> = Object.fromEntries(
+  Object.entries(VIEW_PATHS).map(([v, p]) => [p, v as View])
+);
+const viewFromPath = (path: string): View => PATH_VIEWS[path] ?? 'website';
+
 export default function App() {
   const { user, loading: authLoading, signIn, signUp, signOut } = useAuth();
   const { profile, profileLoading, setRole } = useProfile(user);
 
-  const [view, setViewRaw] = useState<View>('website');
+  const [view, setViewRaw] = useState<View>(() => viewFromPath(window.location.pathname));
   const setView = useCallback((v: View) => {
     setViewRaw(v);
-    // Persist which view is active so a dev-mode HMR reload can return the user here
-    if (v === 'app' || v === 'dashboard') {
-      sessionStorage.setItem('empowher_last_view', v);
-    } else {
-      sessionStorage.removeItem('empowher_last_view');
+    const path = VIEW_PATHS[v];
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, '', path);
     }
   }, []);
+
+  // Sync with browser back/forward navigation
+  useEffect(() => {
+    const onPopState = () => {
+      const v = viewFromPath(window.location.pathname);
+      if (v === 'app') setAppShellEverOpened(true);
+      setViewRaw(v);
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   const [loadedProgram, setLoadedProgram] = useState<SavedProgram | null>(null);
   const [viewForStudent, setViewForStudent] = useState<Profile | null>(null);
   const [quizInitial, setQuizInitial] = useState<{ goal: GoalKey; split: SplitKey } | null>(null);
   // Once the app shell has mounted, keep it in the DOM (hidden) so exercises are never lost on navigation
-  const [appShellEverOpened, setAppShellEverOpened] = useState(false);
+  const [appShellEverOpened, setAppShellEverOpened] = useState(() => viewFromPath(window.location.pathname) === 'app');
 
   const postAuthDest = useRef<'dashboard' | 'app'>('dashboard');
   const pendingQuiz = useRef<{ goal: GoalKey; split: SplitKey } | null>(null);
@@ -81,24 +105,6 @@ export default function App() {
       setView('landing');  // back to program builder landing, not website
     }
   }, [user, authLoading, view]);
-
-  // After a dev-mode HMR page reload, restore the user to wherever they were
-  const viewRestoredRef = useRef(false);
-  useEffect(() => {
-    if (viewRestoredRef.current) return;
-    if (authLoading || profileLoading) return;
-    if (!user || !profile?.role) return;
-    const saved = sessionStorage.getItem('empowher_last_view') as View | null;
-    if (saved === 'app' || saved === 'dashboard') {
-      viewRestoredRef.current = true;
-      if (saved === 'app') {
-        setAppShellEverOpened(true);
-        setViewRaw('app');
-      } else {
-        setViewRaw('dashboard');
-      }
-    }
-  }, [authLoading, profileLoading, user, profile?.role]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const goToAuth = (dest: 'dashboard' | 'app' = 'dashboard') => {
     postAuthDest.current = dest;
@@ -199,6 +205,7 @@ export default function App() {
           onGoToAuth={() => goToAuth('dashboard')}
           onGoToDashboard={openDashboard}
           onOpenAppWithGoal={openAppWithGoal}
+          onGoToWebsite={openWebsite}
           showToast={showToast}
         />
       )}
@@ -242,6 +249,7 @@ export default function App() {
             initialSplit={quizInitial?.split}
             onCloseApp={openDashboard}
             onGoToDashboard={openDashboard}
+            onGoToWebsite={openWebsite}
             onGetWeeklyTips={scrollToSignup}
             showToast={showToast}
           />

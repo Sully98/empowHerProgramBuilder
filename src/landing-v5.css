@@ -440,6 +440,7 @@
   color: var(--teal);
   margin-bottom: 8px;
 }
+.ln-pillar-title .hl { color: var(--gold); font-weight: 700; }
 .ln-pillar-body {
   font-size: 14px;
   font-weight: 300;

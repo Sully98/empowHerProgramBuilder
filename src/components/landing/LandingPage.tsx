@@ -18,21 +18,24 @@ interface LandingPageProps {
   onGoToAuth: () => void;
   onGoToDashboard: () => void;
   onOpenAppWithGoal: (goal: GoalKey, split: SplitKey) => void;
+  onGoToWebsite: () => void;
   showToast: (msg: string) => void;
 }
 
-export function LandingPage({ user, onOpenApp, onGoToAuth, onGoToDashboard, onOpenAppWithGoal, showToast }: LandingPageProps) {
+export function LandingPage({ user, onOpenApp, onGoToAuth, onGoToDashboard, onOpenAppWithGoal, onGoToWebsite, showToast }: LandingPageProps) {
   const missionRef = useRef<HTMLDivElement>(null);
 
   const scrollToMission = () => missionRef.current?.scrollIntoView({ behavior: 'smooth' });
   const scrollToSignup  = () => document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToQuiz    = () => document.getElementById('quiz-sec')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <div id="landing">
       {/* Top nav */}
       <div className="landing-nav">
-        <div className="ln-brand">Empower<em>HER</em> Strength</div>
+        <button className="ln-brand" onClick={onGoToWebsite} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Empower<em>HER</em> Strength</button>
         <div className="ln-actions">
+          <button className="btn btn-ghost btn-sm" onClick={scrollToQuiz}>Take the Quiz →</button>
           {user ? (
             <button className="btn btn-ghost btn-sm" onClick={onGoToDashboard}>My Dashboard</button>
           ) : (
