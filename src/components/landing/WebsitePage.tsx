@@ -58,9 +58,19 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
             <div className="ln-hero-rule-line" />
           </div>
           <p className="ln-hero-sub">
-            For the woman who wants to get stronger but doesn't know where to start. The woman who feels uncomfortable and intimidated in the gym who worries she's using the wrong weight, doing it wrong, or just doesn't know what to do.{' '}
-            <strong>Coach Mel and Coach Courtney teach you how to lift with proper form, build real confidence, and get genuinely strong.</strong>{' '}
-            Beginner-friendly programs built around your body and your goals, real women's health education, and coaches who actually explain the why behind everything.
+            For the woman who wants to get stronger but doesn't know where to start.
+
+            For the woman who feels intimidated walking into the gym. The one who's worried she's using the wrong weight, performing exercises incorrectly, or simply has no idea where to begin.
+
+            We're here for you.
+
+            At EmpowHER Strength, Coach Mel and Coach Courtney teach you how to lift with proper form, build genuine confidence, and become truly strong—without the confusion or intimidation.
+
+            Our beginner-friendly programs are designed around your body, your goals, and your pace. You'll get expert coaching, evidence-based women's health education, and clear explanations that help you understand why you're doing what you're doing—not just what to do.
+
+            Because confidence doesn't come from guessing.
+
+            It comes from learning, growing, and realizing you're capable of far more than you ever imagined.
           </p>
           <p style={{ fontFamily: 'var(--serif)', fontSize: '18px', fontStyle: 'italic', fontWeight: 300, color: 'var(--faint)', lineHeight: 1.6, maxWidth: '440px', marginBottom: '32px' }}>
             "We had to figure it out on our own. You shouldn't have to."
