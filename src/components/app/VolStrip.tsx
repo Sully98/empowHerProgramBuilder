@@ -11,8 +11,7 @@ export function VolStrip({ days, goal }: VolStripProps) {
   const counts: Record<string, number> = {};
   days.forEach(d => {
     if (!d.isRest) d.exercises.forEach(e => {
-      const m = e.sets.match(/^(\d+)/);
-      counts[e.muscle] = (counts[e.muscle] || 0) + (m ? parseInt(m[1]) : 3);
+      counts[e.muscle] = (counts[e.muscle] || 0) + e.setRows.length;
     });
   });
 

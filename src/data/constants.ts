@@ -1,4 +1,8 @@
-import type { Goal, GoalKey, Muscle, OverloadMethod, Split, SplitKey } from './types';
+import type { Goal, GoalKey, Muscle, OverloadMethod, SetRow, Split, SplitKey } from './types';
+
+export function makeSetRows(count: number, reps: string): SetRow[] {
+  return Array.from({ length: count }, () => ({ reps, weight: '' }));
+}
 
 export const OVERLOAD_METHODS: OverloadMethod[] = [
   { id: 'load',    name: 'Load',           desc: 'Increase weight each week or cycle',                     icon: '↑' },
@@ -14,7 +18,7 @@ export const GOALS: Record<GoalKey, Goal> = {
   hypertrophy: {
     label: 'Hypertrophy', plain: 'Build Muscle', color: 'var(--accent)', sets: '3–4', reps: '6–12', load: '67–85% 1RM',
     rest: '60–90 sec', wkMin: 10, wkTarget: '10–20 sets/muscle',
-    defSets: () => '3×8–12',
+    defSets: () => makeSetRows(3, '8-12'),
     research: [
       { h: 'Volume Threshold', cite: 'Schoenfeld BJ et al. (2017). Dose-response relationship between weekly resistance training volume and increases in muscle mass. J Strength Cond Res. 31(12):3508–3523.', t: 'Research demonstrates a clear dose-response relationship between weekly training volume and muscle hypertrophy, with <strong>10+ sets per muscle group per week</strong> producing significantly greater gains than lower volumes. Optimal range is 10–20 sets per muscle per week.' },
       { h: 'Repetition Range', cite: 'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t: 'The ACSM recommends <strong>6–12 repetitions at 67–85% of 1RM</strong> as the primary zone for hypertrophy, balancing mechanical tension and metabolic stress — the two primary drivers of muscle growth.' },
@@ -23,7 +27,7 @@ export const GOALS: Record<GoalKey, Goal> = {
   strength: {
     label: 'Strength', plain: 'Get Stronger', color: 'var(--gold)', sets: '3–5', reps: '1–6', load: '≥85% 1RM',
     rest: '3–5 min', wkMin: 6, wkTarget: '6–10 sets/muscle',
-    defSets: () => '4×4–6',
+    defSets: () => makeSetRows(4, '4-6'),
     research: [
       { h: 'Loading & Intensity', cite: 'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t: 'For maximal strength, ACSM recommends <strong>≥85% of 1RM for 1–6 repetitions</strong>. The primary adaptation is neural — improved motor unit recruitment, synchronization, and rate coding — rather than muscle hypertrophy.' },
       { h: 'Rest Intervals', cite: 'de Salles BF et al. (2009). Rest interval between sets in strength training. Sports Med. 39(9):765–777.', t: 'Strength training requires <strong>3–5 minutes of rest between sets</strong> to allow near-complete phosphocreatine resynthesis. Shorter rest compromises performance and neural adaptations.' },
@@ -32,7 +36,7 @@ export const GOALS: Record<GoalKey, Goal> = {
   power: {
     label: 'Power', plain: 'Be More Athletic', color: '#c17d5a', sets: '3–5', reps: '1–5', load: '75–90% 1RM',
     rest: '3–5 min', wkMin: 4, wkTarget: '4–8 sets/muscle',
-    defSets: () => '4×3–5',
+    defSets: () => makeSetRows(4, '3-5'),
     research: [
       { h: 'Force-Velocity', cite: 'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t: 'Power development requires training the force-velocity curve — <strong>high loads (75–90% 1RM) performed with maximal intent speed</strong>. ACSM recommends 3–5 sets of 1–5 reps with full recovery to preserve movement velocity.' },
       { h: 'CNS Demand', cite: 'Haff GG & Triplett NT (Eds). (2015). Essentials of Strength Training and Conditioning, 4th ed. NSCA.', t: 'Power training places extreme demand on the CNS. <strong>Weekly volume should remain conservative (4–8 sets/muscle)</strong> with long rest intervals. Quality of each rep is paramount.' },
@@ -41,7 +45,7 @@ export const GOALS: Record<GoalKey, Goal> = {
   endurance: {
     label: 'Endurance', plain: 'Build Stamina', color: '#7aab80', sets: '2–3', reps: '15–25', load: '30–60% 1RM',
     rest: '≤30 sec', wkMin: 4, wkTarget: '4–8 sets/muscle',
-    defSets: () => '3×15–20',
+    defSets: () => makeSetRows(3, '15-20'),
     research: [
       { h: 'High-Rep Protocol', cite: 'Ratamess NA et al. (2009). ACSM Position Stand: Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 41(3):687–708.', t: 'Muscular endurance is best developed with <strong>light loads (30–60% 1RM) for 15–25+ repetitions</strong> with rest intervals ≤30 seconds, maximizing oxidative enzyme activity and slow-twitch fatigue resistance.' },
       { h: 'Frequency', cite: "American College of Sports Medicine. (2013). ACSM's Guidelines for Exercise Testing and Prescription, 9th ed. Lippincott Williams & Wilkins.", t: 'ACSM recommends a minimum of <strong>2 days per week</strong> for maintenance, 3 days for continued development. Total weekly set volume can be lower because high rep counts create significant metabolic stimulus per session.' },

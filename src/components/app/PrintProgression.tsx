@@ -1,5 +1,5 @@
-import { applyDeload, getWkDisplaySets, getWkDisplayWeight } from '../../hooks/useProgramBuilder';
-import type { Day, OverloadMethodId, WeekPlan } from '../../data/types';
+import { applyDeloadRows, getWkDisplayRows } from '../../hooks/useProgramBuilder';
+import type { Day, OverloadMethodId, SetRow, WeekPlan } from '../../data/types';
 
 interface PrintProgressionProps {
   overloadPlan: WeekPlan[];
@@ -11,7 +11,7 @@ interface PrintProgressionProps {
 export function PrintProgression({ overloadPlan, days, selectedMethods, deloadPct }: PrintProgressionProps) {
   if (!overloadPlan.length) return null;
 
-  const allEx: Array<{ name: string; muscle: string; sets: string; weight?: string }> = [];
+  const allEx: Array<{ name: string; muscle: string; setRows: SetRow[] }> = [];
   days.forEach(d => {
     if (!d.isRest) d.exercises.forEach(e => {
       if (!allEx.find(x => x.name === e.name)) allEx.push(e);
@@ -48,7 +48,9 @@ export function PrintProgression({ overloadPlan, days, selectedMethods, deloadPc
                 <tr>
                   <th>Exercise</th>
                   <th>Muscle</th>
-                  <th>Sets × Reps</th>
+                  <th>Set</th>
+                  <th>Reps</th>
+                  <th>Target Weight</th>
                   <th>Focus / Notes</th>
                   <th>Actual Weight</th>
                   <th>Reps Completed</th>
@@ -56,23 +58,24 @@ export function PrintProgression({ overloadPlan, days, selectedMethods, deloadPc
               </thead>
               <tbody>
                 {allEx.map((ex, i) => {
-                  const sets = wp.isDeload
-                    ? applyDeload(ex.sets, deloadPct)
-                    : getWkDisplaySets(ex.sets, wp.week, overloadPlan, selectedMethods);
-                  const weight = getWkDisplayWeight(ex.weight, wp.week, overloadPlan, selectedMethods);
+                  const rows = wp.isDeload
+                    ? applyDeloadRows(ex.setRows, deloadPct)
+                    : getWkDisplayRows(ex.setRows, wp.week, overloadPlan, selectedMethods);
                   const notes = wp.instructions
                     .filter(instr => ['Tempo', 'Rest'].includes(instr.method))
                     .map(instr => instr.detail).join(' | ') || '—';
-                  return (
-                    <tr key={i}>
-                      <td>{ex.name}</td>
-                      <td>{ex.muscle}</td>
-                      <td>{sets}</td>
-                      <td>{notes}</td>
-                      <td style={{ minWidth: '80px' }}>{weight ?? '—'}</td>
+                  return rows.map((row, si) => (
+                    <tr key={`${i}-${si}`}>
+                      {si === 0 && <td rowSpan={rows.length}>{ex.name}</td>}
+                      {si === 0 && <td rowSpan={rows.length}>{ex.muscle}</td>}
+                      <td>{si + 1}</td>
+                      <td>{row.reps}</td>
+                      <td style={{ minWidth: '80px' }}>{row.weight || '—'}</td>
+                      {si === 0 && <td rowSpan={rows.length}>{notes}</td>}
+                      <td style={{ minWidth: '80px' }}>&nbsp;</td>
                       <td style={{ minWidth: '80px' }}>&nbsp;</td>
                     </tr>
-                  );
+                  ));
                 })}
               </tbody>
             </table>

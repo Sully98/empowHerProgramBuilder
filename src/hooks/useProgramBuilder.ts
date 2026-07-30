@@ -8,6 +8,7 @@ import type {
   OverloadMethodId,
   ProgramExercise,
   SavedProgram,
+  SetRow,
   SplitKey,
   WeekInstruction,
   WeekPlan,
@@ -47,91 +48,77 @@ function buildDeloadInstructions(deloadPct: number): WeekInstruction[] {
   ];
 }
 
-export function getWkSets(base: string, w: number, overloadPlan: WeekPlan[], selectedMethods: Set<OverloadMethodId>): string {
-  if (!overloadPlan.length || !selectedMethods.has('sets')) return base;
-  const wp = overloadPlan[w - 1];
-  if (!wp || wp.isDeload) return base;
-  const m = base.match(/^(\d+)×(.+)/);
-  if (!m) return base;
-  let s = parseInt(m[1]);
-  if (w >= 3) s = Math.min(s + 1, 6);
-  return `${s}×${m[2]}`;
-}
-
-export function applyDeload(base: string, deloadPct: number): string {
-  const m = base.match(/^(\d+)×(.+)/);
-  if (!m) return base + ' ↓';
-  const s = Math.max(1, Math.round(parseInt(m[1]) * (deloadPct / 100)));
-  return `${s}×${m[2]} ↓`;
-}
-
 function roundWeight(value: number): number {
   if (value >= 20) return Math.round(value / 2.5) * 2.5;
   return Math.round(value * 2) / 2;
 }
 
-// Enhanced sets display: handles both "sets" and "reps" progression methods
-export function getWkDisplaySets(
-  baseSets: string,
-  week: number,
-  overloadPlan: WeekPlan[],
-  selectedMethods: Set<OverloadMethodId>
-): string {
-  if (!overloadPlan.length) return baseSets;
-  const wp = overloadPlan[week - 1];
-  if (!wp || wp.isDeload) return baseSets;
-  if (!selectedMethods.has('sets') && !selectedMethods.has('reps')) return baseSets;
-
-  const m = baseSets.match(/^(\d+)×(\d+)(?:-(\d+))?/);
-  if (!m) return baseSets;
-
-  let sets = parseInt(m[1]);
-  const minReps = parseInt(m[2]);
-  const maxReps = m[3] ? parseInt(m[3]) : minReps;
-
-  // Sets method: add 1 set from week 3 onwards
-  if (selectedMethods.has('sets') && week >= 3) {
-    sets = Math.min(sets + 1, 6);
-  }
-
-  // Reps method: progress target rep count through the range (+1 per week)
-  if (selectedMethods.has('reps')) {
-    const target = Math.min(minReps + (week - 1), maxReps);
-    return `${sets}×${target}`;
-  }
-
-  return maxReps > minReps ? `${sets}×${minReps}-${maxReps}` : `${sets}×${minReps}`;
+// Applies week progression to a single set's weight (e.g. "95 lbs")
+function progressWeight(weight: string, week: number): string {
+  if (!weight) return weight;
+  const match = weight.match(/^([\d.]+)(.*)/);
+  if (!match) return weight;
+  const baseNum = parseFloat(match[1]);
+  if (isNaN(baseNum) || baseNum === 0) return weight;
+  const suffix = match[2]; // e.g. " lbs", " kg", ""
+  const n = roundWeight(baseNum * Math.pow(1.025, week - 1));
+  return n === baseNum ? weight : `${n}${suffix}`;
 }
 
-// Computes the displayed weight for a given week based on selected methods
-export function getWkDisplayWeight(
-  baseWeight: string | undefined,
+// Reduces a single set's weight to ~60% for a deload week
+function deloadWeight(weight: string): string {
+  if (!weight) return weight;
+  const match = weight.match(/^([\d.]+)(.*)/);
+  if (!match) return weight;
+  const baseNum = parseFloat(match[1]);
+  if (isNaN(baseNum) || baseNum === 0) return weight;
+  const suffix = match[2];
+  return `${roundWeight(baseNum * 0.6)}${suffix}`;
+}
+
+// Computes the displayed set rows for a given (non-deload) week based on selected methods.
+// Each set can carry its own reps and weight, and each progresses independently.
+export function getWkDisplayRows(
+  baseRows: SetRow[],
   week: number,
   overloadPlan: WeekPlan[],
   selectedMethods: Set<OverloadMethodId>
-): string | undefined {
-  if (!baseWeight) return baseWeight;
-
-  const match = baseWeight.match(/^([\d.]+)(.*)/);
-  if (!match) return baseWeight;
-  const baseNum = parseFloat(match[1]);
-  if (isNaN(baseNum) || baseNum === 0) return baseWeight;
-  const suffix = match[2]; // e.g. " lbs", " kg", ""
-
-  if (!overloadPlan.length) return baseWeight;
+): SetRow[] {
+  if (!overloadPlan.length) return baseRows;
   const wp = overloadPlan[week - 1];
-  if (!wp) return baseWeight;
+  if (!wp || wp.isDeload) return baseRows;
 
-  // Deload: always reduce to 60% of base weight regardless of method selection
-  if (wp.isDeload) {
-    const n = roundWeight(baseNum * 0.6);
-    return `${n}${suffix}`;
+  let rows = baseRows;
+
+  // Sets method: add a working set from week 3 onward (clone the last row)
+  if (selectedMethods.has('sets') && week >= 3 && rows.length < 6) {
+    rows = [...rows, { ...rows[rows.length - 1] }];
   }
 
-  // Load progression: 2.5% compound increase per week
-  if (!selectedMethods.has('load') || week === 1) return baseWeight;
-  const n = roundWeight(baseNum * Math.pow(1.025, week - 1));
-  return n === baseNum ? baseWeight : `${n}${suffix}`;
+  // Reps method: progress each row's target reps through its range (+1/wk)
+  if (selectedMethods.has('reps')) {
+    rows = rows.map(r => {
+      const m = r.reps.match(/^(\d+)(?:-(\d+))?/);
+      if (!m) return r;
+      const minReps = parseInt(m[1]);
+      const maxReps = m[2] ? parseInt(m[2]) : minReps;
+      const target = Math.min(minReps + (week - 1), maxReps);
+      return { ...r, reps: `${target}` };
+    });
+  }
+
+  // Load method: 2.5% compound weight increase per week, per set
+  if (selectedMethods.has('load') && week > 1) {
+    rows = rows.map(r => ({ ...r, weight: progressWeight(r.weight, week) }));
+  }
+
+  return rows;
+}
+
+// Deload display: fewer working sets (reduced by deloadPct) at ~60% of working weight
+export function applyDeloadRows(baseRows: SetRow[], deloadPct: number): SetRow[] {
+  const keep = Math.max(1, Math.round(baseRows.length * (deloadPct / 100)));
+  return baseRows.slice(0, keep).map(r => ({ ...r, weight: deloadWeight(r.weight) }));
 }
 
 function makeDaysFromSplit(splitKey: SplitKey): Day[] {
@@ -155,6 +142,26 @@ function saveDraft(data: object) {
   } catch {
     // quota exceeded or private browsing — silently ignore
   }
+}
+
+// Migrates exercises saved before per-set rows existed: { sets: "3×8-12", weight?: "95" or "95/95/105" }
+function normalizeExercise(ex: ProgramExercise & { sets?: string; weight?: string }): ProgramExercise {
+  if (Array.isArray(ex.setRows)) return ex;
+
+  const m = (ex.sets ?? '3×8-12').match(/^(\d+)×(.+)/);
+  const count = m ? Math.max(1, parseInt(m[1])) : 3;
+  const reps = m ? m[2] : (ex.sets ?? '8-12');
+  const weights = ex.weight ? ex.weight.split('/').map(w => w.trim()) : [];
+
+  const setRows: SetRow[] = Array.from({ length: count }, (_, i) => ({
+    reps,
+    weight: weights.length ? (weights[i] ?? weights[weights.length - 1]) : '',
+  }));
+  return { muscle: ex.muscle, name: ex.name, adapt: ex.adapt, color: ex.color, setRows };
+}
+
+function normalizeDays(days: Day[]): Day[] {
+  return days.map(d => ({ ...d, exercises: d.exercises.map(normalizeExercise) }));
 }
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -200,7 +207,7 @@ export function useProgramBuilder() {
   );
   const [overloadPlan, setOverloadPlan] = useState<WeekPlan[]>(d?.overloadPlan ?? []);
   const [overloadVisible, setOverloadVisible] = useState<boolean>(d?.overloadVisible ?? false);
-  const [days, setDays] = useState<Day[]>(() => d?.days ?? makeDaysFromSplit('upperlower'));
+  const [days, setDays] = useState<Day[]>(() => d?.days ? normalizeDays(d.days) : makeDaysFromSplit('upperlower'));
   const [activeWeekView, setActiveWeekView] = useState<number>(d?.activeWeekView ?? 1);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
@@ -302,7 +309,7 @@ export function useProgramBuilder() {
         muscle: e.m,
         name: MUSCLES[e.m].exercises[e.i].n,
         adapt: MUSCLES[e.m].exercises[e.i].eq.join(', '),
-        sets: g.defSets(),
+        setRows: g.defSets(),
         color: MUSCLES[e.m].color,
       })),
     })));
@@ -335,7 +342,7 @@ export function useProgramBuilder() {
           muscle: data.muscle ?? 'custom',
           name: data.customName,
           adapt: (data.customEquipment ?? []).join(', '),
-          sets: GOALS[currentGoal].defSets(),
+          setRows: GOALS[currentGoal].defSets(),
           color: data.color ?? '#888888',
         };
       } else {
@@ -345,7 +352,7 @@ export function useProgramBuilder() {
           muscle: data.muscle!,
           name: ex.n,
           adapt: ex.eq.join(', '),
-          sets: GOALS[currentGoal].defSets(),
+          setRows: GOALS[currentGoal].defSets(),
           color: data.color!,
         };
       }
@@ -406,10 +413,32 @@ export function useProgramBuilder() {
     });
   }, []);
 
-  const updateExerciseSets = useCallback((di: number, ei: number, sets: string) => {
+  const updateSetRow = useCallback((di: number, ei: number, si: number, field: 'reps' | 'weight', value: string) => {
     setDays(prev => {
       const next = prev.map(d => ({ ...d, exercises: [...d.exercises] }));
-      next[di].exercises[ei] = { ...next[di].exercises[ei], sets };
+      const ex = next[di].exercises[ei];
+      const setRows = ex.setRows.map((r, i) => i === si ? { ...r, [field]: value } : r);
+      next[di].exercises[ei] = { ...ex, setRows };
+      return next;
+    });
+  }, []);
+
+  const addSetRow = useCallback((di: number, ei: number) => {
+    setDays(prev => {
+      const next = prev.map(d => ({ ...d, exercises: [...d.exercises] }));
+      const ex = next[di].exercises[ei];
+      const last = ex.setRows[ex.setRows.length - 1] ?? { reps: '', weight: '' };
+      next[di].exercises[ei] = { ...ex, setRows: [...ex.setRows, { ...last }] };
+      return next;
+    });
+  }, []);
+
+  const removeSetRow = useCallback((di: number, ei: number, si: number) => {
+    setDays(prev => {
+      const next = prev.map(d => ({ ...d, exercises: [...d.exercises] }));
+      const ex = next[di].exercises[ei];
+      if (ex.setRows.length <= 1) return next;
+      next[di].exercises[ei] = { ...ex, setRows: ex.setRows.filter((_, i) => i !== si) };
       return next;
     });
   }, []);
@@ -421,8 +450,7 @@ export function useProgramBuilder() {
     const counts: Record<string, number> = {};
     days.forEach(d => {
       if (!d.isRest) d.exercises.forEach(e => {
-        const m = e.sets.match(/^(\d+)/);
-        counts[e.muscle] = (counts[e.muscle] || 0) + (m ? parseInt(m[1]) : 3);
+        counts[e.muscle] = (counts[e.muscle] || 0) + e.setRows.length;
       });
     });
     const under = Object.entries(counts).filter(([, v]) => v < g.wkMin).map(([k]) => k);
@@ -462,14 +490,6 @@ export function useProgramBuilder() {
 
   const dismissOverloadPlan = useCallback(() => setOverloadVisible(false), []);
 
-  const updateExerciseWeight = useCallback((di: number, ei: number, weight: string) => {
-    setDays(prev => {
-      const next = prev.map(d => ({ ...d, exercises: [...d.exercises] }));
-      next[di].exercises[ei] = { ...next[di].exercises[ei], weight };
-      return next;
-    });
-  }, []);
-
   const updateProgramName = useCallback((name: string) => setProgramName(name), []);
 
   const getProgramSnapshot = useCallback(() => ({
@@ -494,7 +514,7 @@ export function useProgramBuilder() {
     setDeloadPct(saved.deload_pct);
     setSelectedMethods(new Set(saved.selected_methods as OverloadMethodId[]));
     setOverloadPlan(saved.overload_plan ?? []);
-    setDays(saved.days);
+    setDays(normalizeDays(saved.days));
     setActiveWeekView(1);
     setAnalysis(null);
   }, []);
@@ -527,9 +547,10 @@ export function useProgramBuilder() {
     generateOverload, setActiveWeek,
     loadTemplate, clearProg,
     handleDragStart, handleDrop,
-    removeExercise, toggleDay, updateDayLabel, updateExerciseSets,
+    removeExercise, toggleDay, updateDayLabel,
+    updateSetRow, addSetRow, removeSetRow,
     analyzeProg, dismissAnalysis,
     updateProgramName, getProgramSnapshot, loadProgram, resetForNew, setProgramId,
-    overloadVisible, dismissOverloadPlan, updateExerciseWeight,
+    overloadVisible, dismissOverloadPlan,
   };
 }

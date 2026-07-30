@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import { upsertProgram } from '../../lib/programs';
-import { fetchLogsForWeek, upsertLog } from '../../lib/workoutLogs';
-import { applyDeload, getWkDisplaySets, getWkDisplayWeight, useProgramBuilder } from '../../hooks/useProgramBuilder';
+import { fetchLogsForWeek, logKey, upsertLog } from '../../lib/workoutLogs';
+import { applyDeloadRows, getWkDisplayRows, useProgramBuilder } from '../../hooks/useProgramBuilder';
 import type { GoalKey, Profile, SavedProgram, SplitKey, WorkoutLog, WorkoutLogKey } from '../../data/types';
 import { GOALS, SPLITS } from '../../data/constants';
 import { AppHeader } from './AppHeader';
@@ -94,13 +94,14 @@ export function AppShell({
   const handleLogChange = useCallback(async (
     dayIndex: number,
     exerciseName: string,
+    setIndex: number,
     field: 'actual_weight' | 'actual_reps',
     value: string
   ) => {
     if (!pb.currentProgramId) return;
 
     // Optimistic update
-    const key = `${dayIndex}_${exerciseName}` as WorkoutLogKey;
+    const key = logKey(dayIndex, exerciseName, setIndex);
     setWeekLogs(prev => ({
       ...prev,
       [key]: { ...(prev[key] ?? {}), [field]: value } as WorkoutLog,
@@ -114,6 +115,7 @@ export function AppShell({
       pb.activeWeekView,
       dayIndex,
       exerciseName,
+      setIndex,
       field === 'actual_weight' ? value : (current?.actual_weight ?? ''),
       field === 'actual_reps'   ? value : (current?.actual_reps   ?? ''),
     );
@@ -131,8 +133,9 @@ export function AppShell({
   const handleExportXlsx = () => {
     const { overloadPlan, activeDays, selectedMethods, deloadPct, programName, goalLabel, splitLabel, weekCount, deloadOn } = buildProgramData();
 
-    const COLS = ['Week', 'Day', 'Exercise', 'Muscle Group', 'Sets × Reps', 'Target Weight', 'Actual Weight', 'Actual Reps', 'Focus / Notes', 'Comments'];
-    const COL_WIDTHS = [22, 18, 28, 14, 13, 14, 14, 12, 38, 32];
+    const COLS = ['Week', 'Day', 'Exercise', 'Muscle Group', 'Set', 'Reps', 'Target Weight', 'Actual Weight', 'Actual Reps', 'Focus / Notes', 'Comments'];
+    const COL_WIDTHS = [22, 18, 28, 14, 6, 10, 14, 14, 12, 38, 32];
+    const FILLER = COLS.length - 2;
 
     // Theme colours (matching website)
     const DARK   = '1A1A1A';
@@ -163,7 +166,7 @@ export function AppShell({
     wsData.push([
       cell(`EmpowHER Strength — ${programName || 'My Program'}`, { font: { name: 'Georgia', sz: 14, bold: true, color: { rgb: GOLD } }, fill: headerFill }),
       cell(`${splitLabel} · ${goalLabel} · ${weekCount}-Week Block${deloadOn ? ' + Deload' : ''}`, { font: { name: 'Courier New', sz: 9, color: { rgb: MUTED } }, fill: headerFill }),
-      ...Array(8).fill(cell('', { fill: headerFill })),
+      ...Array(FILLER).fill(cell('', { fill: headerFill })),
     ]);
 
     // Column header row
@@ -184,7 +187,7 @@ export function AppShell({
             fill: weekFill,
           }),
           cell(instrNote, { font: { name: 'Courier New', sz: 8, color: { rgb: MUTED } }, fill: weekFill }),
-          ...Array(8).fill(cell('', { fill: weekFill })),
+          ...Array(FILLER).fill(cell('', { fill: weekFill })),
         ]);
       }
 
@@ -195,32 +198,34 @@ export function AppShell({
         wsData.push([
           cell(''),
           cell(day.label, { font: { name: 'Courier New', sz: 9, bold: true, color: { rgb: TEAL } }, fill: cardFill }),
-          ...Array(8).fill(cell('', { fill: cardFill })),
+          ...Array(FILLER).fill(cell('', { fill: cardFill })),
         ]);
 
         day.exercises.forEach((ex, i) => {
-          const sets = isNoplan ? ex.sets : wp!.isDeload
-            ? applyDeload(ex.sets, deloadPct)
-            : getWkDisplaySets(ex.sets, wp!.week, overloadPlan, selectedMethods);
-          const weight = isNoplan ? (ex.weight ?? '') : (getWkDisplayWeight(ex.weight, wp!.week, overloadPlan, selectedMethods) ?? '');
+          const rows = isNoplan ? ex.setRows : wp!.isDeload
+            ? applyDeloadRows(ex.setRows, deloadPct)
+            : getWkDisplayRows(ex.setRows, wp!.week, overloadPlan, selectedMethods);
           const focusNotes = isNoplan ? '' : wp!.instructions.filter(j => ['Tempo', 'Rest', 'Rep Quality'].includes(j.method)).map(j => j.detail).join(' | ') || '';
           const rowFill = i % 2 === 0 ? evenFill : oddFill;
 
-          wsData.push([
-            cell('', { fill: rowFill }),
-            cell('', { fill: rowFill }),
-            cell(ex.name, { font: { name: 'DM Sans', sz: 10, bold: true, color: { rgb: CREAM } }, fill: rowFill }),
-            cell(ex.muscle, { font: { name: 'Courier New', sz: 8, color: { rgb: TEAL } }, fill: rowFill }),
-            cell(sets, { font: { name: 'DM Sans', sz: 10, bold: true, color: { rgb: CREAM } }, fill: rowFill }),
-            cell(weight, { font: { name: 'DM Sans', sz: 10, color: { rgb: GOLD } }, fill: rowFill }),
-            cell('', { fill: whiteFill }),  // Actual Weight — white for pen
-            cell('', { fill: whiteFill }),  // Actual Reps — white for pen
-            cell(focusNotes, { font: { name: 'Courier New', sz: 8, color: { rgb: MUTED } }, fill: rowFill }),
-            cell('', { fill: whiteFill }),  // Comments — white for pen
-          ]);
+          rows.forEach((row, si) => {
+            wsData.push([
+              cell('', { fill: rowFill }),
+              cell('', { fill: rowFill }),
+              cell(si === 0 ? ex.name : '', { font: { name: 'DM Sans', sz: 10, bold: true, color: { rgb: CREAM } }, fill: rowFill }),
+              cell(si === 0 ? ex.muscle : '', { font: { name: 'Courier New', sz: 8, color: { rgb: TEAL } }, fill: rowFill }),
+              cell(`${si + 1}`, { font: { name: 'DM Sans', sz: 10, color: { rgb: CREAM } }, fill: rowFill }),
+              cell(row.reps, { font: { name: 'DM Sans', sz: 10, bold: true, color: { rgb: CREAM } }, fill: rowFill }),
+              cell(row.weight, { font: { name: 'DM Sans', sz: 10, color: { rgb: GOLD } }, fill: rowFill }),
+              cell('', { fill: whiteFill }),  // Actual Weight — white for pen
+              cell('', { fill: whiteFill }),  // Actual Reps — white for pen
+              cell(si === 0 ? focusNotes : '', { font: { name: 'Courier New', sz: 8, color: { rgb: MUTED } }, fill: rowFill }),
+              cell('', { fill: whiteFill }),  // Comments — white for pen
+            ]);
+          });
         });
 
-        wsData.push(Array(10).fill(cell('', { fill: { patternType: 'solid', fgColor: { rgb: DARK } } })));
+        wsData.push(Array(COLS.length).fill(cell('', { fill: { patternType: 'solid', fgColor: { rgb: DARK } } })));
       }
     };
 
@@ -253,31 +258,32 @@ export function AppShell({
           .filter(i => ['Tempo', 'Rest', 'Rep Quality'].includes(i.method))
           .map(i => i.detail).join(' | ') || '—';
         const rowsHtml = day.exercises.map((ex, i) => {
-          const sets = wp.isDeload
-            ? applyDeload(ex.sets, deloadPct)
-            : getWkDisplaySets(ex.sets, wp.week, overloadPlan, selectedMethods);
-          const weight = getWkDisplayWeight(ex.weight, wp.week, overloadPlan, selectedMethods);
-          return `<tr class="${i % 2 === 0 ? 'r-even' : 'r-odd'}">
-            <td class="ex-name">${ex.name}</td>
-            <td class="muscle">${ex.muscle}</td>
-            <td class="sets">${sets}</td>
-            <td class="weight">${weight ?? '—'}</td>
-            <td class="notes">${focusNotes}</td>
+          const rows = wp.isDeload
+            ? applyDeloadRows(ex.setRows, deloadPct)
+            : getWkDisplayRows(ex.setRows, wp.week, overloadPlan, selectedMethods);
+          const rowClass = i % 2 === 0 ? 'r-even' : 'r-odd';
+          return rows.map((row, si) => `<tr class="${rowClass}">
+            ${si === 0 ? `<td class="ex-name" rowspan="${rows.length}">${ex.name}</td><td class="muscle" rowspan="${rows.length}">${ex.muscle}</td>` : ''}
+            <td class="set-num">${si + 1}</td>
+            <td class="sets">${row.reps}</td>
+            <td class="weight">${row.weight || '—'}</td>
+            ${si === 0 ? `<td class="notes" rowspan="${rows.length}">${focusNotes}</td>` : ''}
             <td class="writeable"></td>
             <td class="writeable"></td>
-            <td class="writeable comments"></td>
-          </tr>`;
+            ${si === 0 ? `<td class="writeable comments" rowspan="${rows.length}"></td>` : ''}
+          </tr>`).join('');
         }).join('');
 
         return `<div class="day-block">
           <div class="day-header">${day.label}</div>
           <table>
             <thead><tr>
-              <th style="width:20%">Exercise</th>
-              <th style="width:9%">Muscle</th>
-              <th style="width:9%">Sets × Reps</th>
-              <th style="width:9%">Target Wt</th>
-              <th style="width:14%">Focus / Notes</th>
+              <th style="width:17%">Exercise</th>
+              <th style="width:7%">Muscle</th>
+              <th style="width:5%">Set</th>
+              <th style="width:8%">Reps</th>
+              <th style="width:11%">Target Wt</th>
+              <th style="width:12%">Focus / Notes</th>
               <th style="width:9%">Actual Wt</th>
               <th style="width:9%">Actual Reps</th>
               <th style="width:21%">Comments</th>
@@ -298,24 +304,28 @@ export function AppShell({
     }).join('') : (() => {
       const daysHtml = activeDays.map(day => {
         if (day.exercises.length === 0) return '';
-        const rowsHtml = day.exercises.map((ex, i) => `<tr class="${i % 2 === 0 ? 'r-even' : 'r-odd'}">
-          <td class="ex-name">${ex.name}</td>
-          <td class="muscle">${ex.muscle}</td>
-          <td class="sets">${ex.sets}</td>
-          <td class="weight">${ex.weight ?? '—'}</td>
-          <td class="notes">—</td>
-          <td class="writeable"></td>
-          <td class="writeable"></td>
-          <td class="writeable comments"></td>
-        </tr>`).join('');
+        const rowsHtml = day.exercises.map((ex, i) => {
+          const rowClass = i % 2 === 0 ? 'r-even' : 'r-odd';
+          return ex.setRows.map((row, si) => `<tr class="${rowClass}">
+            ${si === 0 ? `<td class="ex-name" rowspan="${ex.setRows.length}">${ex.name}</td><td class="muscle" rowspan="${ex.setRows.length}">${ex.muscle}</td>` : ''}
+            <td class="set-num">${si + 1}</td>
+            <td class="sets">${row.reps}</td>
+            <td class="weight">${row.weight || '—'}</td>
+            ${si === 0 ? `<td class="notes" rowspan="${ex.setRows.length}">—</td>` : ''}
+            <td class="writeable"></td>
+            <td class="writeable"></td>
+            ${si === 0 ? `<td class="writeable comments" rowspan="${ex.setRows.length}"></td>` : ''}
+          </tr>`).join('');
+        }).join('');
         return `<div class="day-block">
           <div class="day-header">${day.label}</div>
           <table>
             <thead><tr>
-              <th style="width:20%">Exercise</th><th style="width:9%">Muscle</th>
-              <th style="width:9%">Sets × Reps</th><th style="width:9%">Target Wt</th>
-              <th style="width:14%">Focus / Notes</th><th style="width:9%">Actual Wt</th>
-              <th style="width:9%">Actual Reps</th><th style="width:21%">Comments</th>
+              <th style="width:17%">Exercise</th><th style="width:7%">Muscle</th>
+              <th style="width:5%">Set</th><th style="width:8%">Reps</th>
+              <th style="width:11%">Target Wt</th><th style="width:12%">Focus / Notes</th>
+              <th style="width:9%">Actual Wt</th><th style="width:9%">Actual Reps</th>
+              <th style="width:21%">Comments</th>
             </tr></thead>
             <tbody>${rowsHtml}</tbody>
           </table>
@@ -325,9 +335,7 @@ export function AppShell({
     })();
 
     const totalEx = activeDays.reduce((a, d) => a + d.exercises.length, 0);
-    const totalSets = activeDays.reduce((a, d) => a + d.exercises.reduce((b, e) => {
-      const m = e.sets.match(/^(\d+)/); return b + (m ? parseInt(m[1]) : 0);
-    }, 0), 0);
+    const totalSets = activeDays.reduce((a, d) => a + d.exercises.reduce((b, e) => b + e.setRows.length, 0), 0);
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -512,6 +520,7 @@ export function AppShell({
       text-transform: uppercase;
       color: #7bb5b2;
     }
+    .set-num { font-family: 'DM Mono', monospace; font-size: 9px; color: #8a8070; text-align: center; }
     .sets { font-weight: 600; color: #f8f2dd; }
     .weight { color: #edd286; font-weight: 500; }
     .notes { color: #8a8070; font-size: 10px; }
@@ -681,8 +690,9 @@ export function AppShell({
           onToggleDay={pb.toggleDay}
           onUpdateLabel={pb.updateDayLabel}
           onRemoveExercise={pb.removeExercise}
-          onSetsChange={pb.updateExerciseSets}
-          onWeightChange={pb.updateExerciseWeight}
+          onRowChange={pb.updateSetRow}
+          onAddRow={pb.addSetRow}
+          onRemoveRow={pb.removeSetRow}
           onLogChange={handleLogChange}
           onDragStart={pb.handleDragStart}
           onDrop={pb.handleDrop}

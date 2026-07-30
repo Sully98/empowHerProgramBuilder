@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { GOALS, SPLITS } from '../../data/constants';
+import { useEffect, useRef, useState } from 'react';
+import { DOW, GOALS, SPLITS } from '../../data/constants';
 import type { AnalysisResult, Day, DragData, GoalKey, OverloadMethodId, SplitKey, WeekPlan, WorkoutLog, WorkoutLogKey } from '../../data/types';
 import { DayCard } from './DayCard';
 import { OverloadSummary } from './OverloadSummary';
@@ -29,9 +29,10 @@ interface MainAreaProps {
   onToggleDay: (di: number) => void;
   onUpdateLabel: (di: number, label: string) => void;
   onRemoveExercise: (di: number, ei: number) => void;
-  onSetsChange: (di: number, ei: number, sets: string) => void;
-  onWeightChange: (di: number, ei: number, weight: string) => void;
-  onLogChange: (dayIndex: number, exerciseName: string, field: 'actual_weight' | 'actual_reps', value: string) => void;
+  onRowChange: (di: number, ei: number, si: number, field: 'reps' | 'weight', value: string) => void;
+  onAddRow: (di: number, ei: number) => void;
+  onRemoveRow: (di: number, ei: number, si: number) => void;
+  onLogChange: (dayIndex: number, exerciseName: string, setIndex: number, field: 'actual_weight' | 'actual_reps', value: string) => void;
   onDragStart: (data: DragData) => void;
   onDrop: (tdi: number, goal: GoalKey, tei?: number) => void;
   onDismissOverload: () => void;
@@ -44,10 +45,11 @@ export function MainArea({
   activeWeekView, totalWeeks, isDeloadView, analysis,
   isCoachView, weekLogs,
   onSelectWeek, onProgramNameChange, onToggleDay, onUpdateLabel,
-  onRemoveExercise, onSetsChange, onWeightChange, onLogChange, onDragStart, onDrop,
+  onRemoveExercise, onRowChange, onAddRow, onRemoveRow, onLogChange, onDragStart, onDrop,
   onDismissOverload, onDismissAnalysis,
 }: MainAreaProps) {
   const sugPanelRef = useRef<HTMLDivElement>(null);
+  const [showAddDay, setShowAddDay] = useState(false);
 
   useEffect(() => {
     if (analysis) {
@@ -57,12 +59,12 @@ export function MainArea({
 
   const totalEx = days.filter(d => !d.isRest).reduce((a, d) => a + d.exercises.length, 0);
   const totalSets = days.filter(d => !d.isRest).reduce((a, d) => {
-    return a + d.exercises.reduce((b, e) => {
-      const m = e.sets.match(/^(\d+)/);
-      return b + (m ? parseInt(m[1]) : 0);
-    }, 0);
+    return a + d.exercises.reduce((b, e) => b + e.setRows.length, 0);
   }, 0);
-  const activeDays = days.filter(d => !d.isRest).length;
+  const indexedDays = days.map((day, di) => ({ day, di }));
+  const visibleDays = indexedDays.filter(({ day }) => !day.isRest);
+  const hiddenDays = indexedDays.filter(({ day }) => day.isRest);
+  const activeDays = visibleDays.length;
   const g = GOALS[goal];
   const s = SPLITS[split];
   const isDeloadWeek = deloadOn && activeWeekView === totalWeeks;
@@ -85,11 +87,35 @@ export function MainArea({
             {isCoachView && <span className="prog-sub-coach-badge">Coach View</span>}
           </div>
         </div>
-        <div className="meta-row">
-          <div className="mstat"><div className="mnum">{totalEx}</div><div className="mlbl">Exercises</div></div>
-          <div className="mstat"><div className="mnum">{totalSets}</div><div className="mlbl">Total Sets</div></div>
-          <div className="mstat"><div className="mnum">{activeDays}</div><div className="mlbl">Days/Wk</div></div>
-          <div className="mstat"><div className="mnum" style={{ color: 'var(--gold)' }}>{totalWeeks}</div><div className="mlbl">Wk Block</div></div>
+        <div className="prog-hdr-right">
+          <div className="meta-row">
+            <div className="mstat"><div className="mnum">{totalEx}</div><div className="mlbl">Exercises</div></div>
+            <div className="mstat"><div className="mnum">{totalSets}</div><div className="mlbl">Total Sets</div></div>
+            <div className="mstat"><div className="mnum">{activeDays}</div><div className="mlbl">Days/Wk</div></div>
+            <div className="mstat"><div className="mnum" style={{ color: 'var(--gold)' }}>{totalWeeks}</div><div className="mlbl">Wk Block</div></div>
+          </div>
+          {hiddenDays.length > 0 && (
+            <div className="add-day-wrap">
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowAddDay(v => !v)}>+ Add Day</button>
+              {showAddDay && (
+                <>
+                  <div className="add-day-backdrop" onClick={() => setShowAddDay(false)} />
+                  <div className="add-day-menu">
+                    {hiddenDays.map(({ di }) => (
+                      <button
+                        key={di}
+                        className="add-day-item"
+                        onClick={() => { onToggleDay(di); setShowAddDay(false); }}
+                      >
+                        <span className="add-day-dow">{DOW[di]}</span>
+                        <span className="add-day-lbl">Add this day back in</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -112,12 +138,8 @@ export function MainArea({
 
       <SuggestionPanel analysis={analysis} panelRef={sugPanelRef} onClose={onDismissAnalysis} />
 
-      <div
-        className="days-grid"
-        id="days-grid"
-        style={{ gridTemplateColumns: `repeat(${Math.min(days.length, 7)}, 1fr)` }}
-      >
-        {days.map((day, di) => (
+      <div className="days-grid" id="days-grid">
+        {visibleDays.map(({ day, di }) => (
           <DayCard
             key={di}
             day={day}
@@ -133,8 +155,9 @@ export function MainArea({
             onToggleDay={onToggleDay}
             onUpdateLabel={onUpdateLabel}
             onRemoveExercise={onRemoveExercise}
-            onSetsChange={onSetsChange}
-            onWeightChange={onWeightChange}
+            onRowChange={onRowChange}
+            onAddRow={onAddRow}
+            onRemoveRow={onRemoveRow}
             onLogChange={onLogChange}
             onDragStart={onDragStart}
             onDrop={onDrop}

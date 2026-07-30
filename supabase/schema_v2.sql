@@ -114,7 +114,7 @@ create policy "delete own programs"
 
 
 -- ─── 5. WORKOUT LOGS ──────────────────────────────────────────────────────────
--- Students log actual reps/weight per exercise per week
+-- Students log actual reps/weight per set, per exercise, per week
 
 create table public.workout_logs (
   id             uuid default gen_random_uuid() primary key,
@@ -123,11 +123,12 @@ create table public.workout_logs (
   week           integer not null,
   day_index      integer not null,
   exercise_name  text not null,
+  set_index      integer not null default 0,
   actual_weight  text,
   actual_reps    text,
   notes          text,
   logged_at      timestamptz default now() not null,
-  unique(program_id, user_id, week, day_index, exercise_name)
+  unique(program_id, user_id, week, day_index, exercise_name, set_index)
 );
 
 alter table public.workout_logs enable row level security;

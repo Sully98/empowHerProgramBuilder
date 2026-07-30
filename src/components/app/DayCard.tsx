@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DOW } from '../../data/constants';
-import { applyDeload, getWkDisplaySets, getWkDisplayWeight } from '../../hooks/useProgramBuilder';
+import { applyDeloadRows, getWkDisplayRows } from '../../hooks/useProgramBuilder';
 import { logKey } from '../../lib/workoutLogs';
 import type { Day, DragData, GoalKey, OverloadMethodId, WeekPlan, WorkoutLog, WorkoutLogKey } from '../../data/types';
 import { ExerciseBlock } from './ExerciseBlock';
@@ -19,9 +19,10 @@ interface DayCardProps {
   onToggleDay: (di: number) => void;
   onUpdateLabel: (di: number, label: string) => void;
   onRemoveExercise: (di: number, ei: number) => void;
-  onSetsChange: (di: number, ei: number, sets: string) => void;
-  onWeightChange: (di: number, ei: number, weight: string) => void;
-  onLogChange: (dayIndex: number, exerciseName: string, field: 'actual_weight' | 'actual_reps', value: string) => void;
+  onRowChange: (di: number, ei: number, si: number, field: 'reps' | 'weight', value: string) => void;
+  onAddRow: (di: number, ei: number) => void;
+  onRemoveRow: (di: number, ei: number, si: number) => void;
+  onLogChange: (dayIndex: number, exerciseName: string, setIndex: number, field: 'actual_weight' | 'actual_reps', value: string) => void;
   onDragStart: (data: DragData) => void;
   onDrop: (tdi: number, goal: GoalKey, tei?: number) => void;
 }
@@ -29,7 +30,7 @@ interface DayCardProps {
 export function DayCard({
   day, di, activeWeekView, isDeloadView, overloadPlan, selectedMethods, deloadPct, goal,
   isCoachView, weekLogs,
-  onToggleDay, onUpdateLabel, onRemoveExercise, onSetsChange, onWeightChange, onLogChange, onDragStart, onDrop,
+  onToggleDay, onUpdateLabel, onRemoveExercise, onRowChange, onAddRow, onRemoveRow, onLogChange, onDragStart, onDrop,
 }: DayCardProps) {
   const [dragOver, setDragOver] = useState(false);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
@@ -60,11 +61,10 @@ export function DayCard({
           day.exercises.length === 0
             ? <div className="drop-hint">Drop exercises here</div>
             : day.exercises.map((ex, ei) => {
-                const displaySets = isDeloadView
-                  ? applyDeload(ex.sets, deloadPct)
-                  : getWkDisplaySets(ex.sets, activeWeekView, overloadPlan, selectedMethods);
-                const displayWeight = getWkDisplayWeight(ex.weight, activeWeekView, overloadPlan, selectedMethods);
-                const log = weekLogs[logKey(di, ex.name)];
+                const displayRows = isDeloadView
+                  ? applyDeloadRows(ex.setRows, deloadPct)
+                  : getWkDisplayRows(ex.setRows, activeWeekView, overloadPlan, selectedMethods);
+                const getLog = (si: number) => weekLogs[logKey(di, ex.name, si)];
                 return (
                   <div
                     key={ei}
@@ -77,14 +77,14 @@ export function DayCard({
                       ex={ex}
                       di={di}
                       ei={ei}
-                      displaySets={displaySets}
-                      displayWeight={displayWeight}
+                      displayRows={displayRows}
                       isDeload={isDeloadView}
-                      log={log}
+                      getLog={getLog}
                       isCoachView={isCoachView}
                       onRemove={onRemoveExercise}
-                      onSetsChange={onSetsChange}
-                      onWeightChange={onWeightChange}
+                      onRowChange={onRowChange}
+                      onAddRow={onAddRow}
+                      onRemoveRow={onRemoveRow}
                       onLogChange={onLogChange}
                       onDragStart={(d, e) => onDragStart({ src: 'block', di: d, ei: e })}
                     />

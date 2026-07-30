@@ -15,6 +15,11 @@ export interface GoalResearch {
   t: string;
 }
 
+export interface SetRow {
+  reps: string;
+  weight: string;
+}
+
 export interface Goal {
   label: string;
   plain: string;
@@ -25,7 +30,7 @@ export interface Goal {
   rest: string;
   wkMin: number;
   wkTarget: string;
-  defSets: () => string;
+  defSets: () => SetRow[];
   research: GoalResearch[];
 }
 
@@ -67,8 +72,7 @@ export interface ProgramExercise {
   muscle: string;
   name: string;
   adapt: string;
-  sets: string;
-  weight?: string;
+  setRows: SetRow[];
   color: string;
 }
 
@@ -144,10 +148,11 @@ export interface WorkoutLog {
   week: number;
   day_index: number;
   exercise_name: string;
+  set_index: number;
   actual_weight: string | null;
   actual_reps: string | null;
   notes: string | null;
   logged_at: string;
 }
 
-export type WorkoutLogKey = string; // `${day_index}_${exercise_name}`
+export type WorkoutLogKey = string; // `${day_index}_${exercise_name}_${set_index}`

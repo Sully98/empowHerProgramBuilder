@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
 import type { WorkoutLog, WorkoutLogKey } from '../data/types';
 
-export function logKey(dayIndex: number, exerciseName: string): WorkoutLogKey {
-  return `${dayIndex}_${exerciseName}`;
+export function logKey(dayIndex: number, exerciseName: string, setIndex: number): WorkoutLogKey {
+  return `${dayIndex}_${exerciseName}_${setIndex}`;
 }
 
 export async function fetchLogsForWeek(
@@ -19,7 +19,7 @@ export async function fetchLogsForWeek(
 
   const map: Record<WorkoutLogKey, WorkoutLog> = {};
   for (const row of (data ?? []) as WorkoutLog[]) {
-    map[logKey(row.day_index, row.exercise_name)] = row;
+    map[logKey(row.day_index, row.exercise_name, row.set_index)] = row;
   }
   return map;
 }
@@ -30,6 +30,7 @@ export async function upsertLog(
   week: number,
   dayIndex: number,
   exerciseName: string,
+  setIndex: number,
   actualWeight: string,
   actualReps: string
 ): Promise<void> {
@@ -40,10 +41,11 @@ export async function upsertLog(
       week,
       day_index: dayIndex,
       exercise_name: exerciseName,
+      set_index: setIndex,
       actual_weight: actualWeight || null,
       actual_reps: actualReps || null,
       logged_at: new Date().toISOString(),
     },
-    { onConflict: 'program_id,user_id,week,day_index,exercise_name' }
+    { onConflict: 'program_id,user_id,week,day_index,exercise_name,set_index' }
   );
 }
