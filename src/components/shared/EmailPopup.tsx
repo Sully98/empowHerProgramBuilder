@@ -3,12 +3,14 @@ import { saveSubscriber } from '../landing/EmailSignup';
 
 interface EmailPopupProps {
   showToast: (msg: string) => void;
+  openSignal?: number;
 }
 
-export function EmailPopup({ showToast }: EmailPopupProps) {
+export function EmailPopup({ showToast, openSignal }: EmailPopupProps) {
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
   const shown = useRef(false);
 
   useEffect(() => {
@@ -24,16 +26,39 @@ export function EmailPopup({ showToast }: EmailPopupProps) {
     return () => clearTimeout(timer);
   }, []);
 
+  // Let other parts of the app (e.g. the "Get the Free Guide" buttons) force this open.
+  useEffect(() => {
+    if (!openSignal) return;
+    setVisible(true);
+    shown.current = true;
+  }, [openSignal]);
+
   const close = () => {
     setVisible(false);
     localStorage.setItem('empowher_popup_dismissed', 'true');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!email || !email.includes('@')) { showToast('Please enter a valid email'); return; }
-    saveSubscriber(name.trim(), email.trim());
-    close();
-    showToast('Welcome to EmpowHER Strength! 🎉');
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    saveSubscriber(trimmedName, trimmedEmail);
+    setSending(true);
+    try {
+      const res = await fetch('/api/send-guide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmedName, email: trimmedEmail }),
+      });
+      if (!res.ok) throw new Error('send failed');
+      close();
+      showToast('Check your inbox — your guide is on the way! 🎉');
+    } catch {
+      close();
+      showToast("Saved! We'll follow up by email shortly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -45,12 +70,14 @@ export function EmailPopup({ showToast }: EmailPopupProps) {
       <div className="popup-box">
         <button className="popup-close" onClick={close}>✕</button>
         <div className="popup-tag">Free from EmpowHER Strength</div>
-        <h2 className="popup-h">Want a free<br /><em>starter program?</em></h2>
-        <p className="popup-p">Drop your email and we'll send you a ready-to-use beginner program — built right here in the builder — plus weekly training tips from Melody, straight to your inbox.</p>
+        <h2 className="popup-h">Want the free<br /><em>training guide?</em></h2>
+        <p className="popup-p">26 pages on form, myths, and how to actually structure your training. Drop your email and we'll send it straight to your inbox, plus weekly training tips from Melody.</p>
         <div className="popup-form">
           <input className="email-field" type="text" placeholder="Your first name" value={name} onChange={e => setName(e.target.value)} />
           <input className="email-field" type="email" placeholder="Your email address" value={email} onChange={e => setEmail(e.target.value)} />
-          <button className="email-submit" onClick={handleSubmit}>Send Me the Program →</button>
+          <button className="email-submit" onClick={handleSubmit} disabled={sending}>
+            {sending ? 'Sending…' : 'Send Me the Guide →'}
+          </button>
           <div className="popup-no" onClick={close}>No thanks, I'll figure it out myself</div>
         </div>
       </div>

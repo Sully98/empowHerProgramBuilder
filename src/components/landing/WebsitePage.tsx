@@ -2,10 +2,11 @@ import '../../landing-v5.css';
 
 interface WebsitePageProps {
   onOpenProgramBuilder: () => void;
+  onOpenGuide: () => void;
 }
 
 
-export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
+export function WebsitePage({ onOpenProgramBuilder, onOpenGuide }: WebsitePageProps) {
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
@@ -60,7 +61,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
           </p>
           <div className="ln-hero-btns">
             <button className="ln-btn ln-btn-teal" onClick={() => scrollTo('programs')}>Start Here →</button>
-            <button className="ln-btn ln-btn-gold" onClick={() => scrollTo('guide')}>Get the Free Guide</button>
+            <button className="ln-btn ln-btn-gold" onClick={onOpenGuide}>Get the Free Guide</button>
             <button className="ln-btn ln-btn-ghost" onClick={onOpenProgramBuilder}>Program Builder</button>
           </div>
         </div>
@@ -215,7 +216,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
                 <div className="ln-prog-inc">Form basics and how to self-assess</div>
                 <div className="ln-prog-inc">Balancing lifting, cardio and real life</div>
               </div>
-              <button className="ln-btn ln-btn-ghost" style={{ width: '100%', textAlign: 'center' }} onClick={() => scrollTo('guide')}>Download Free</button>
+              <button className="ln-btn ln-btn-ghost" style={{ width: '100%', textAlign: 'center' }} onClick={onOpenGuide}>Download Free</button>
             </div>
 
             <div className="ln-prog-card featured">
@@ -384,7 +385,7 @@ export function WebsitePage({ onOpenProgramBuilder }: WebsitePageProps) {
               <p style={{ fontSize: '15px', fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, marginBottom: '36px' }}>
                 <strong style={{ color: 'var(--warm)', fontWeight: 400 }}>Read it once. Use it forever.</strong>
               </p>
-              <a href="mailto:melody@empowherstrength.com?subject=Free Guide Request" className="ln-btn ln-btn-gold">Get the Free Guide</a>
+              <button className="ln-btn ln-btn-gold" onClick={onOpenGuide}>Get the Free Guide</button>
             </div>
             <div>
               <div style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '20px' }}>What's inside</div>

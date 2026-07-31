@@ -64,6 +64,9 @@ export default function App() {
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [guidePopupTrigger, setGuidePopupTrigger] = useState(0);
+  const openGuidePopup = useCallback(() => setGuidePopupTrigger(t => t + 1), []);
+
   const showToast = useCallback((msg: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToastMsg(msg);
@@ -195,6 +198,7 @@ export default function App() {
       {!isLoading && view === 'website' && (
         <WebsitePage
           onOpenProgramBuilder={openLanding}
+          onOpenGuide={openGuidePopup}
         />
       )}
 
@@ -256,7 +260,7 @@ export default function App() {
         </div>
       )}
 
-      <EmailPopup showToast={showToast} />
+      <EmailPopup showToast={showToast} openSignal={guidePopupTrigger} />
       <Toast msg={toastMsg} visible={toastVisible} />
     </>
   );
